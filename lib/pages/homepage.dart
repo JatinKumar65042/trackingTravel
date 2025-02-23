@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:tracker/travelmode/transport_selection.dart';
+import 'package:tracker/travelmode/Co2_emission.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -8,19 +11,60 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  String selectedTransport = "Select Travel Mode";
+
+  // Selecting the Travel Mode option
+  Widget _buildTransportSelection() {
+    List<String> transportModes = [
+      "Walking",
+      "Bicycle",
+      "Car",
+      "2/3-Wheeler",
+      "Bus",
+      "Train",
+      "Flight",
+    ];
+
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Select Travel Mode",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 10),
+          Divider(),
+          Column(
+            children: transportModes.map((mode) {
+              return ListTile(
+                title: Text(mode),
+                onTap: () {
+                  setState(() {
+                    selectedTransport = mode;
+                  });
+                  Navigator.pop(context);  // Close the transport selection dialog
+                },
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         child: Column(
-
-          //to put all containers to start from left
+          // To align all containers from the left
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Stack(
               children: [
-
-                //background top image valley
+                // Background top image valley
                 Image.asset(
                   "images/valley.jpg",
                   width: MediaQuery.of(context).size.width,
@@ -35,14 +79,11 @@ class _HomeState extends State<Home> {
                   ),
                   child: Row(
                     children: [
-
-                      //option to check for different destinations around the world
+                      // Destination button
                       Material(
                         elevation: 5.0,
-                        //padding border
                         borderRadius: BorderRadius.circular(100),
                         child: Container(
-                          //all for padding
                           padding: EdgeInsets.all(7.5),
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -56,11 +97,8 @@ class _HomeState extends State<Home> {
                           ),
                         ),
                       ),
-
-                      //space between small containers
                       Spacer(),
-
-                      //adding reached destination button
+                      // Add destination button
                       Material(
                         elevation: 5.0,
                         borderRadius: BorderRadius.circular(10),
@@ -74,8 +112,7 @@ class _HomeState extends State<Home> {
                         ),
                       ),
                       SizedBox(width: 10),
-
-                      //profile icon
+                      // Profile icon
                       Material(
                         elevation: 5.0,
                         borderRadius: BorderRadius.circular(60),
@@ -92,7 +129,7 @@ class _HomeState extends State<Home> {
                     ],
                   ),
                 ),
-
+                // Quote on background
                 Padding(
                   padding: const EdgeInsets.only(top: 145.0, left: 20.0),
                   child: Column(
@@ -119,6 +156,9 @@ class _HomeState extends State<Home> {
                     ],
                   ),
                 ),
+
+
+                // Mode of Travel Selection
                 Container(
                   margin: EdgeInsets.only(
                     left: 30,
@@ -128,146 +168,78 @@ class _HomeState extends State<Home> {
                   child: Material(
                     elevation: 5,
                     borderRadius: BorderRadius.circular(50),
+                    color: Colors.transparent,
                     child: Container(
-                      padding: EdgeInsets.only(left: 20, top: 7),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 15,
+                        horizontal: 20,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         border: Border.all(width: 1.5),
                         borderRadius: BorderRadius.circular(50),
                       ),
-                      child: TextField(
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: "search your destination",
-                          suffixIcon: Icon(Icons.search),
-                        ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            selectedTransport,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(10),
+                                  ),
+                                ),
+                                builder: (context) {
+                                  return _buildTransportSelection();
+                                },
+                              );
+                            },
+                            child: Icon(Icons.keyboard_arrow_down),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 40.0),
-            Container(
-              margin: EdgeInsets.only(left: 30, right: 30),
-              child: Material(
-                elevation: 3.0,
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
+
+
+            // Add "Next" button after selecting a transport mode
+            if (selectedTransport != "Select Travel Mode")
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Navigate to the CO₂ Emission page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Co2Emission(
+                          selectedTransport: selectedTransport,
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
                   ),
-                  // margin: EdgeInsets.only(left: 30, right: 30),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 20.0, left: 20.0),
-                        child: Row(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(50),
-                              child: Image.asset(
-                                "images/avatar.jpg",
-                                height: 50,
-                                width: 50,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            SizedBox(height: 15),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 10),
-                              child: Text(
-                                "ROUNAK SAINI",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontFamily: 'Gilroy-Light',
-                                  fontSize: 25.0,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 12),
-                      Image.asset("images/Mandir.jpg"),
-                      SizedBox(height: 5),
-                      // putting the location icon to know the location of place
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Row(
-                          children: [
-                            Icon(Icons.location_on, color: Colors.blue),
-                            Text(
-                              "Kashi Vishwanath Temple,Varanasi",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontFamily: 'Gilroy-dark',
-                                fontSize: 15.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10.0),
-                        child: Text(
-                          "One of the historical moments in my life was i witnessed the KVT",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontFamily: 'Gilroy-Italic',
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.w300,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 15.0),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.favorite_outline,
-                              color: Colors.black54,
-                              size: 35,
-                            ),
-                            SizedBox(width: 10),
-                            Text(
-                              "Like",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontFamily: 'Gilroy-Italic',
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            SizedBox(width: 50),
-                            Icon(
-                              Icons.comment_outlined,
-                              color: Colors.black54,
-                              size: 28,
-                            ),
-                            SizedBox(width: 10),
-                            Text(
-                              "Comment",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontFamily: 'Gilroy-Italic',
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                  child: Text("Next"),
                 ),
               ),
-            ),
           ],
         ),
       ),

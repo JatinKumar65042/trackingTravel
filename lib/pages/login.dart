@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui'; // Required for blur effect
 import 'package:lottie/lottie.dart';
+import 'package:tracker/pages/signup.dart';
 
 class LogIn extends StatefulWidget {
   const LogIn({super.key});
@@ -55,7 +56,9 @@ class _LogInState extends State<LogIn> {
                                   Navigator.pop(context); // Close dialog
                                 },
                               ),
-                              SizedBox(width: 50,), // Space between icon and text
+                              SizedBox(
+                                width: 50,
+                              ), // Space between icon and text
                               Text(
                                 "LOGIN",
                                 style: TextStyle(
@@ -102,9 +105,7 @@ class _LogInState extends State<LogIn> {
                           ),
                           SizedBox(height: 20),
                           Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment
-                                    .end, // Aligns text to the right
+                            mainAxisAlignment: MainAxisAlignment.end, // Aligns text to the right
                             children: [
                               Text(
                                 "Forgot Password ? ",
@@ -120,26 +121,34 @@ class _LogInState extends State<LogIn> {
                           SizedBox(height: 20),
                           Row(
                             mainAxisAlignment:
-                                MainAxisAlignment
-                                    .center, // Centers buttons horizontally
+                                MainAxisAlignment.center, // Centers buttons horizontally
                             children: [
-                              Container(
-                                width: 100,
-                                padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(30),
-                                  color:
-                                      Colors
-                                          .white, // White background for SignUp
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    "SignUp",
-                                    style: TextStyle(
-                                      color: Colors.deepPurpleAccent,
-                                      fontSize: 15,
-                                      fontFamily: 'Gilroy-Light',
-                                      fontWeight: FontWeight.bold,
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>SignUp(),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  width: 100,
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(30),
+                                    color:
+                                        Colors.white, // White background for SignUp
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "SignUp",
+                                      style: TextStyle(
+                                        color: Colors.deepPurpleAccent,
+                                        fontSize: 15,
+                                        fontFamily: 'Gilroy-Light',
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -151,8 +160,7 @@ class _LogInState extends State<LogIn> {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(30),
                                   color:
-                                      Colors
-                                          .deepPurpleAccent, // Purple background for LogIn
+                                      Colors.deepPurpleAccent, // Purple background for LogIn
                                 ),
                                 child: Center(
                                   child: Text(
