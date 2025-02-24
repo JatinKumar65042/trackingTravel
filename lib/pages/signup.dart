@@ -5,7 +5,6 @@ import 'package:tracker/pages/login.dart';
 import '../controller/auth_controller.dart';
 
 class SignUp extends StatefulWidget {
-
   const SignUp({super.key});
 
   @override
@@ -13,23 +12,25 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  AuthController controller = Get.find() ;
+  AuthController controller = Get.find();
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _cnfpasswordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset : false,
+      resizeToAvoidBottomInset:
+          true, // Ensures UI adjusts when keyboard appears
       backgroundColor: Colors.black,
-      body: Container(
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Image.asset("images/login.jpg"),
             Padding(
-              padding: const EdgeInsets.only(left: 60.0, right: 60.0),
+              padding: const EdgeInsets.symmetric(horizontal: 60.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -42,86 +43,20 @@ class _SignUpState extends State<SignUp> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  // Text(
-                  //   "LogIn",
-                  //   style: TextStyle(
-                  //     color: Colors.white,
-                  //     fontSize: 45,
-                  //     fontFamily: 'Gilroy-Light',
-                  //     fontWeight: FontWeight.bold,
-                  //   ),
-                  // ),
                   SizedBox(height: 30),
-                  Text(
-                    "Name",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 25,
-                      fontFamily: 'Gilroy-Light',
-                      fontWeight: FontWeight.w600,
-                    ),
+                  buildTextField("Name", _usernameController, Icons.person),
+                  buildTextField("Email", _emailController, Icons.email),
+                  buildTextField(
+                    "Password",
+                    _passwordController,
+                    Icons.lock,
+                    obscureText: true,
                   ),
-                  TextField(
-                    controller: _usernameController,
-                    decoration: InputDecoration(
-                      hintText: "Enter Name Here",
-                      hintStyle: TextStyle(color: Colors.white54),
-                      suffixIcon: Icon(Icons.person, color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "Email",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 25,
-                      fontFamily: 'Gilroy-Light',
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  TextField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      hintText: "Enter Email Here",
-                      hintStyle: TextStyle(color: Colors.white54),
-                      suffixIcon: Icon(Icons.email, color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(height: 30),
-                  Text(
-                    "Password ",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 25,
-                      fontFamily: 'Gilroy-Light',
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  TextField(
-                    controller: _passwordController,
-                    decoration: InputDecoration(
-                      hintText: "Enter Password Here ",
-                      hintStyle: TextStyle(color: Colors.white54),
-                      suffixIcon: Icon(Icons.password, color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
+                  buildTextField(
                     "Confirm Password",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 25,
-                      fontFamily: 'Gilroy-Light',
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  TextField(
-                    controller: _cnfpasswordController,
-                    decoration: InputDecoration(
-                      hintText: "Confirm Password Here",
-                      hintStyle: TextStyle(color: Colors.white54),
-                      suffixIcon: Icon(Icons.password, color: Colors.white),
-                    ),
+                    _cnfpasswordController,
+                    Icons.lock,
+                    obscureText: true,
                   ),
                   SizedBox(height: 30),
                   Row(
@@ -156,7 +91,7 @@ class _SignUpState extends State<SignUp> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Already Have An Account ? ",
+                        "Already Have An Account? ",
                         style: TextStyle(
                           color: Color.fromARGB(157, 255, 255, 255),
                           fontSize: 15,
@@ -191,13 +126,52 @@ class _SignUpState extends State<SignUp> {
       ),
     );
   }
-  signup(){
+
+  Widget buildTextField(
+    String label,
+    TextEditingController controller,
+    IconData icon, {
+    bool obscureText = false,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 25,
+            fontFamily: 'Gilroy-Light',
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        TextField(
+          controller: controller,
+          obscureText: obscureText,
+          style: TextStyle(
+            color: Colors.white,
+          ), // Changing input text color to white
+          decoration: InputDecoration(
+            hintText: "Enter $label Here",
+            hintStyle: TextStyle(color: Colors.white54),
+            suffixIcon: Icon(icon, color: Colors.white),
+          ),
+        ),
+        SizedBox(height: 10),
+      ],
+    );
+  }
+
+  signup() {
     String username = _usernameController.text;
-    String email = _emailController.text ;
+    String email = _emailController.text;
     String password = _passwordController.text;
     String cnfpassword = _cnfpasswordController.text;
 
-    if (username.isEmpty || email.isEmpty || password.isEmpty || cnfpassword.isEmpty) {
+    if (username.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty ||
+        cnfpassword.isEmpty) {
       Get.snackbar(
         "Error",
         "All fields are required!",
@@ -206,9 +180,9 @@ class _SignUpState extends State<SignUp> {
         colorText: Colors.white,
         duration: Duration(seconds: 3),
       );
-      return; // Stop execution
+      return;
     }
 
-    controller.signup(username , email, password , cnfpassword) ;
+    controller.signup(username, email, password, cnfpassword);
   }
 }
