@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:tracker/pages/login.dart';
 
+import '../controller/auth_controller.dart';
+
 class SignUp extends StatefulWidget {
+
   const SignUp({super.key});
 
   @override
@@ -9,9 +13,15 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  AuthController controller = Get.find() ;
+  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+  TextEditingController _cnfpasswordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset : false,
       backgroundColor: Colors.black,
       body: Container(
         child: Column(
@@ -27,7 +37,7 @@ class _SignUpState extends State<SignUp> {
                     "WAY TO GO!",
                     style: TextStyle(
                       color: Color.fromARGB(189, 180, 180, 225),
-                      fontSize: 75,
+                      fontSize: 70,
                       fontFamily: 'LondrinaSketch-Regular',
                       fontWeight: FontWeight.w600,
                     ),
@@ -52,6 +62,7 @@ class _SignUpState extends State<SignUp> {
                     ),
                   ),
                   TextField(
+                    controller: _usernameController,
                     decoration: InputDecoration(
                       hintText: "Enter Name Here",
                       hintStyle: TextStyle(color: Colors.white54),
@@ -69,6 +80,7 @@ class _SignUpState extends State<SignUp> {
                     ),
                   ),
                   TextField(
+                    controller: _emailController,
                     decoration: InputDecoration(
                       hintText: "Enter Email Here",
                       hintStyle: TextStyle(color: Colors.white54),
@@ -86,6 +98,7 @@ class _SignUpState extends State<SignUp> {
                     ),
                   ),
                   TextField(
+                    controller: _passwordController,
                     decoration: InputDecoration(
                       hintText: "Enter Password Here ",
                       hintStyle: TextStyle(color: Colors.white54),
@@ -103,6 +116,7 @@ class _SignUpState extends State<SignUp> {
                     ),
                   ),
                   TextField(
+                    controller: _cnfpasswordController,
                     decoration: InputDecoration(
                       hintText: "Confirm Password Here",
                       hintStyle: TextStyle(color: Colors.white54),
@@ -112,22 +126,25 @@ class _SignUpState extends State<SignUp> {
                   SizedBox(height: 30),
                   Row(
                     children: [
-                      Container(
-                        margin: EdgeInsets.only(left: 70),
-                        width: 140,
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          color: Colors.white,
-                        ),
-                        child: Center(
-                          child: Text(
-                            "SignUp",
-                            style: TextStyle(
-                              color: Colors.deepPurpleAccent,
-                              fontSize: 15,
-                              fontFamily: 'Gilroy-Light',
-                              fontWeight: FontWeight.bold,
+                      GestureDetector(
+                        onTap: () => signup(),
+                        child: Container(
+                          margin: EdgeInsets.only(left: 70),
+                          width: 140,
+                          padding: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            color: Colors.white,
+                          ),
+                          child: Center(
+                            child: Text(
+                              "SignUp",
+                              style: TextStyle(
+                                color: Colors.deepPurpleAccent,
+                                fontSize: 15,
+                                fontFamily: 'Gilroy-Light',
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
@@ -173,5 +190,25 @@ class _SignUpState extends State<SignUp> {
         ),
       ),
     );
+  }
+  signup(){
+    String username = _usernameController.text;
+    String email = _emailController.text ;
+    String password = _passwordController.text;
+    String cnfpassword = _cnfpasswordController.text;
+
+    if (username.isEmpty || email.isEmpty || password.isEmpty || cnfpassword.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "All fields are required!",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: Duration(seconds: 3),
+      );
+      return; // Stop execution
+    }
+
+    controller.signup(username , email, password , cnfpassword) ;
   }
 }
