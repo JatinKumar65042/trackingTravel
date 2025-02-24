@@ -334,20 +334,25 @@ class _HomeState extends State<Home> {
             right: 20,
             child: Row(
               children: [
-                Material(
-                  elevation: 5.0,
-                  borderRadius: BorderRadius.circular(100),
-                  child: Container(
-                    padding: EdgeInsets.all(7.5),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    child: Image.asset(
-                      "images/destination.jpg",
-                      height: 38,
-                      width: 38,
-                      fit: BoxFit.cover,
+                InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(context, "/top_places");
+                  },
+                  child: Material(
+                    elevation: 5.0,
+                    borderRadius: BorderRadius.circular(100),
+                    child: Container(
+                      padding: EdgeInsets.all(7.5),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: Image.asset(
+                        "images/destination.jpg",
+                        height: 38,
+                        width: 38,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
@@ -365,16 +370,21 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 SizedBox(width: 10),
-                Material(
-                  elevation: 5.0,
-                  borderRadius: BorderRadius.circular(60),
-                  child: ClipRRect(
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, "/me"); // Navigate to "/me" route
+                  },
+                  child: Material(
+                    elevation: 5.0,
                     borderRadius: BorderRadius.circular(60),
-                    child: Image.asset(
-                      "images/profile.jpg",
-                      height: 60,
-                      width: 60,
-                      fit: BoxFit.cover,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(60),
+                      child: Image.asset(
+                        "images/profile.jpg",
+                        height: 60,
+                        width: 60,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),

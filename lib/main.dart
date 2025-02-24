@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tracker/pages/homepage.dart';
+import 'package:tracker/pages/profile.dart';
 import 'package:tracker/pages/survey/survey.dart';
 import 'package:tracker/pages/survey/survey2.dart';
 import 'package:tracker/pages/survey/survey3.dart';
@@ -37,11 +38,13 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       getPages: [
-        GetPage(name: '/', page: () => SplashScreen(child: LogIn())), // ✅ Keeping SplashScreen same
+        GetPage(name: '/', page: () => SplashScreen(child: LogIn())),
+        // GetPage(name: '/', page: () => Home()),
         GetPage(name: '/login', page: () => LogIn()),
         GetPage(name: '/signUp', page: () => SignUp()),
         GetPage(name: '/home', page: () => Home()),
         GetPage(name: '/top_places', page: () => TopPlaces()),
+        GetPage(name: '/me', page: () => ProfilePage()),
         // Uncomment or add these if needed
         // GetPage(name: '/maps', page: () => MapsPage()),
         GetPage(name: '/survey', page: () => Survey()),
