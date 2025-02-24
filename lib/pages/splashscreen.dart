@@ -1,9 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:tracker/pages/homepage.dart';
 import 'package:tracker/pages/login.dart';
+import 'package:tracker/pages/signup.dart';
 
 class SplashScreen extends StatefulWidget {
+  final Widget? child;
+  const SplashScreen({super.key, this.child}) ;
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -11,16 +16,12 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
+    Future.delayed(
+        Duration(seconds: 3),(){
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => widget.child!), (route) => false);
+    }
+    );
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(Duration(seconds: 5), () {
-        if (mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => LogIn()),
-          );
-        }
-      });
-    });
   }
 
   @override
