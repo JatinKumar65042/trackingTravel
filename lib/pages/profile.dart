@@ -46,8 +46,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text("Logged out successfully!")),
                 );
-
-                // Navigate to Login Page after logout
+                String name = "" ,email = "", id = "";
+                await SharedPreferenceHelper().saveUserDisplayName(name);
+                await SharedPreferenceHelper().saveUserEmail(email);
+                await SharedPreferenceHelper().saveUserId(id);
                 Navigator.pushReplacementNamed(context, "/login");
               } catch (e) {
                 print("Error during logout: $e");

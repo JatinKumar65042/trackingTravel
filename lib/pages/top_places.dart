@@ -21,17 +21,22 @@ class _TopPlacesState extends State<TopPlaces> {
               child: Row(
                 children: [
                   // for back arrow button
-                  Material(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.blueAccent,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: Colors.white,
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, "/home"); // Navigate to "/me" route
+                    },
+                    child: Material(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.blueAccent,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -80,102 +85,95 @@ class _TopPlacesState extends State<TopPlaces> {
                         //using row widget to put images in row together
                         Row(
                           //spacing between two top places in same row
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Ensures equal spacing
                           children: [
-                            //using stack widget to put images on top of each other and t be able to show name of places over images
-                            Material(
-                              elevation: 3.0,
-                              borderRadius: BorderRadius.circular(20),
-                              child: Stack(
-                                children: [
-                                  //providing border radius using clipRReact widget on Image.asset below
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: Image.asset(
-                                      "images/India.jpg",
-                                      height: 300,
-                                      width: 190,
-                                      fit: BoxFit.cover,
-                                      alignment: Alignment(-0.4, 0.0),
-                                    ),
-                                  ),
-                                  Container(
-                                    //providing margin to the container to put text over image
-                                    margin: EdgeInsets.only(top: 260.0),
-                                    //if ht used then india wal container goes below
-                                    // height: 300,
-                                    width: 190,
-                                    decoration: BoxDecoration(
-                                      color: Colors.black26,
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(20),
-                                        bottomRight: Radius.circular(20),
+                            Flexible(
+                              child: Material(
+                                elevation: 3.0,
+                                borderRadius: BorderRadius.circular(20),
+                                child: Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.asset(
+                                        "images/India.jpg",
+                                        height: 250, // Reduced height
+                                        width: 160,  // Reduced width
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
-                    
-                                    //centering the text widget onto the image
-                                    child: Center(
-                                      child: Text(
-                                        "INDIA",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontFamily: 'Gilroy-Italic',
-                                          fontSize: 28.0,
-                                          fontWeight: FontWeight.bold,
+                                    Positioned(
+                                      bottom: 0,
+                                      child: Container(
+                                        width: 160,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black26,
+                                          borderRadius: BorderRadius.only(
+                                            bottomLeft: Radius.circular(20),
+                                            bottomRight: Radius.circular(20),
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "INDIA",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: 'Gilroy-Italic',
+                                              fontSize: 24.0, // Slightly smaller font
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  // SizedBox(width: 30.0),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
-                    
-                            //for second place
-                            Material(
-                              elevation: 3.0,
-                              borderRadius: BorderRadius.circular(20),
-                              child: Stack(
-                                children: [
-                                  //providing border radius using clipRReact widget on Image.asset below
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: Image.asset(
-                                      "images/Italy.jpg",
-                                      height: 300,
-                                      width: 190,
-                                      fit: BoxFit.cover,
-                                      // alignment: Alignment(-0.4, 0.0),
-                                    ),
-                                  ),
-                                  Container(
-                                    //providing margin to the container to put text over image
-                                    margin: EdgeInsets.only(top: 260.0),
-                                    // height: 300,
-                                    width: 190,
-                                    decoration: BoxDecoration(
-                                      color: Colors.black26,
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(20),
-                                        bottomRight: Radius.circular(20),
+
+                            SizedBox(width: 10), // Adds spacing between images
+
+                            Flexible(
+                              child: Material(
+                                elevation: 3.0,
+                                borderRadius: BorderRadius.circular(20),
+                                child: Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.asset(
+                                        "images/Italy.jpg",
+                                        height: 250,
+                                        width: 160,
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
-                    
-                                    //centering the text widget onto the image
-                                    child: Center(
-                                      child: Text(
-                                        "ITALY",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontFamily: 'Gilroy-Italic',
-                                          fontSize: 28.0,
-                                          fontWeight: FontWeight.bold,
+                                    Positioned(
+                                      bottom: 0,
+                                      child: Container(
+                                        width: 160,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black26,
+                                          borderRadius: BorderRadius.only(
+                                            bottomLeft: Radius.circular(20),
+                                            bottomRight: Radius.circular(20),
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "ITALY",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: 'Gilroy-Italic',
+                                              fontSize: 24.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  // SizedBox(width: 30.0),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -185,103 +183,95 @@ class _TopPlacesState extends State<TopPlaces> {
                         //using row widget to put images in row together
                         Row(
                           //spacing between two top places in same row
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Ensures equal spacing
                           children: [
-                    
-                            //using stack widget to put images on top of each other and t be able to show name of places over images
-                            Material(
-                              elevation: 3.0,
-                              borderRadius: BorderRadius.circular(20),
-                              child: Stack(
-                                children: [
-                                  //providing border radius using clipRReact widget on Image.asset below
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: Image.asset(
-                                      "images/France.jpg",
-                                      height: 300,
-                                      width: 190,
-                                      fit: BoxFit.cover,
-                                      // alignment: Alignment(-0.4, 0.0),
-                                    ),
-                                  ),
-                                  Container(
-                                    //providing margin to the container to put text over image
-                                    margin: EdgeInsets.only(top: 260.0),
-                                    //if ht used then india wal container goes below
-                                    // height: 300,
-                                    width: 190,
-                                    decoration: BoxDecoration(
-                                      color: Colors.black26,
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(20),
-                                        bottomRight: Radius.circular(20),
+                            Flexible(
+                              child: Material(
+                                elevation: 3.0,
+                                borderRadius: BorderRadius.circular(20),
+                                child: Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.asset(
+                                        "images/France.jpg",
+                                        height: 250, // Reduced height
+                                        width: 160,  // Reduced width
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
-                    
-                                    //centering the text widget onto the image
-                                    child: Center(
-                                      child: Text(
-                                        "FRANCE",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontFamily: 'Gilroy-Italic',
-                                          fontSize: 28.0,
-                                          fontWeight: FontWeight.bold,
+                                    Positioned(
+                                      bottom: 0,
+                                      child: Container(
+                                        width: 160,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black26,
+                                          borderRadius: BorderRadius.only(
+                                            bottomLeft: Radius.circular(20),
+                                            bottomRight: Radius.circular(20),
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "FRANCE",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: 'Gilroy-Italic',
+                                              fontSize: 24.0, // Slightly smaller font
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  // SizedBox(width: 30.0),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
-                    
-                            //for second place
-                            Material(
-                              elevation: 3.0,
-                              borderRadius: BorderRadius.circular(20),
-                              child: Stack(
-                                children: [
-                                  //providing border radius using clipRReact widget on Image.asset below
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: Image.asset(
-                                      "images/China.jpg",
-                                      height: 300,
-                                      width: 190,
-                                      fit: BoxFit.cover,
-                                      // alignment: Alignment(-0.4, 0.0),
-                                    ),
-                                  ),
-                                  Container(
-                                    //providing margin to the container to put text over image
-                                    margin: EdgeInsets.only(top: 260.0),
-                                    // height: 300,
-                                    width: 190,
-                                    decoration: BoxDecoration(
-                                      color: Colors.black26,
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(20),
-                                        bottomRight: Radius.circular(20),
+
+                            SizedBox(width: 10), // Adds spacing between images
+
+                            Flexible(
+                              child: Material(
+                                elevation: 3.0,
+                                borderRadius: BorderRadius.circular(20),
+                                child: Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.asset(
+                                        "images/China.jpg",
+                                        height: 250,
+                                        width: 160,
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
-                    
-                                    //centering the text widget onto the image
-                                    child: Center(
-                                      child: Text(
-                                        "CHINA",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontFamily: 'Gilroy-Italic',
-                                          fontSize: 28.0,
-                                          fontWeight: FontWeight.bold,
+                                    Positioned(
+                                      bottom: 0,
+                                      child: Container(
+                                        width: 160,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black26,
+                                          borderRadius: BorderRadius.only(
+                                            bottomLeft: Radius.circular(20),
+                                            bottomRight: Radius.circular(20),
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "CHINA",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: 'Gilroy-Italic',
+                                              fontSize: 24.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  // SizedBox(width: 30.0),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -291,103 +281,95 @@ class _TopPlacesState extends State<TopPlaces> {
                         //using row widget to put images in row together
                         Row(
                           //spacing between two top places in same row
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Ensures equal spacing
                           children: [
-                    
-                            //using stack widget to put images on top of each other and t be able to show name of places over images
-                            Material(
-                              elevation: 3.0,
-                              borderRadius: BorderRadius.circular(20),
-                              child: Stack(
-                                children: [
-                                  //providing border radius using clipRReact widget on Image.asset below
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: Image.asset(
-                                      "images/Disney.jpg",
-                                      height: 300,
-                                      width: 190,
-                                      fit: BoxFit.cover,
-                                      // alignment: Alignment(-0.4, 0.0),
-                                    ),
-                                  ),
-                                  Container(
-                                    //providing margin to the container to put text over image
-                                    margin: EdgeInsets.only(top: 260.0),
-                                    //if ht used then india wal container goes below
-                                    // height: 300,
-                                    width: 190,
-                                    decoration: BoxDecoration(
-                                      color: Colors.black26,
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(20),
-                                        bottomRight: Radius.circular(20),
+                            Flexible(
+                              child: Material(
+                                elevation: 3.0,
+                                borderRadius: BorderRadius.circular(20),
+                                child: Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.asset(
+                                        "images/Disney.jpg",
+                                        height: 250, // Reduced height
+                                        width: 160,  // Reduced width
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
-                    
-                                    //centering the text widget onto the image
-                                    child: Center(
-                                      child: Text(
-                                        "HONK KONG",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontFamily: 'Gilroy-Italic',
-                                          fontSize: 28.0,
-                                          fontWeight: FontWeight.bold,
+                                    Positioned(
+                                      bottom: 0,
+                                      child: Container(
+                                        width: 160,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black26,
+                                          borderRadius: BorderRadius.only(
+                                            bottomLeft: Radius.circular(20),
+                                            bottomRight: Radius.circular(20),
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "HONG KONG",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: 'Gilroy-Italic',
+                                              fontSize: 24.0, // Slightly smaller font
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  // SizedBox(width: 30.0),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
-                    
-                            //for second place
-                            Material(
-                              elevation: 3.0,
-                              borderRadius: BorderRadius.circular(20),
-                              child: Stack(
-                                children: [
-                                  //providing border radius using clipRReact widget on Image.asset below
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: Image.asset(
-                                      "images/NewYork.jpg",
-                                      height: 300,
-                                      width: 190,
-                                      fit: BoxFit.cover,
-                                      // alignment: Alignment(-0.4, 0.0),
-                                    ),
-                                  ),
-                                  Container(
-                                    //providing margin to the container to put text over image
-                                    margin: EdgeInsets.only(top: 260.0),
-                                    // height: 300,
-                                    width: 190,
-                                    decoration: BoxDecoration(
-                                      color: Colors.black26,
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(20),
-                                        bottomRight: Radius.circular(20),
+
+                            SizedBox(width: 10), // Adds spacing between images
+
+                            Flexible(
+                              child: Material(
+                                elevation: 3.0,
+                                borderRadius: BorderRadius.circular(20),
+                                child: Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.asset(
+                                        "images/NewYork.jpg",
+                                        height: 250,
+                                        width: 160,
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
-                    
-                                    //centering the text widget onto the image
-                                    child: Center(
-                                      child: Text(
-                                        "NEW YORK",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontFamily: 'Gilroy-Italic',
-                                          fontSize: 28.0,
-                                          fontWeight: FontWeight.bold,
+                                    Positioned(
+                                      bottom: 0,
+                                      child: Container(
+                                        width: 160,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black26,
+                                          borderRadius: BorderRadius.only(
+                                            bottomLeft: Radius.circular(20),
+                                            bottomRight: Radius.circular(20),
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "NEW YORK",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: 'Gilroy-Italic',
+                                              fontSize: 24.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  // SizedBox(width: 30.0),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ],

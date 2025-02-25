@@ -118,7 +118,7 @@ class _SurveyState extends State<Survey> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Text(
-          "Survey",
+          "Survey(1/5)",
           style: TextStyle(
             color: Colors.white,
             fontSize: 22,
