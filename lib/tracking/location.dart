@@ -206,6 +206,7 @@ class LocationSelectionPageState extends State<LocationSelectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset : false,
       appBar: AppBar(title: Text("Select Your Location")),
       body: Column(
         children: [

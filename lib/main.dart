@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tracker/pages/homepage.dart';
+import 'package:tracker/pages/profile.dart';
 import 'package:tracker/pages/survey/survey.dart';
 import 'package:tracker/pages/survey/survey2.dart';
 import 'package:tracker/pages/survey/survey3.dart';
@@ -10,6 +11,7 @@ import 'package:tracker/pages/top_places.dart';
 import 'package:tracker/pages/login.dart';
 import 'package:tracker/pages/signup.dart';
 import 'package:tracker/pages/splashscreen.dart';
+import 'package:tracker/services/shared_pref.dart';
 import '../controller/auth_controller.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -21,11 +23,22 @@ void main() async{
   await Firebase.initializeApp();
   // Initialize AuthController before the app starts
   Get.put(AuthController());
-  runApp(const MyApp());
+  bool isLoggedIn  = await checkSession();
+  print("Loggin Check");
+  print(isLoggedIn);
+  runApp(MyApp(isLoggedIn: isLoggedIn));
+}
+
+Future<bool> checkSession() async {
+  String? userId = await SharedPreferenceHelper().getUserId();
+  print("UserId: $userId");
+
+  return userId != null && userId.isNotEmpty;
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isLoggedIn ;
+  MyApp({super.key , required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -36,12 +49,14 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.pink,
       ),
       initialRoute: '/',
+      home: SplashScreen(child: isLoggedIn ? Home() : LogIn()),
       getPages: [
-        GetPage(name: '/', page: () => SplashScreen(child: LogIn())), // ✅ Keeping SplashScreen same
+        // GetPage(name: '/', page: () => Home()),
         GetPage(name: '/login', page: () => LogIn()),
         GetPage(name: '/signUp', page: () => SignUp()),
         GetPage(name: '/home', page: () => Home()),
         GetPage(name: '/top_places', page: () => TopPlaces()),
+        GetPage(name: '/me', page: () => ProfilePage()),
         // Uncomment or add these if needed
         // GetPage(name: '/maps', page: () => MapsPage()),
         GetPage(name: '/survey', page: () => Survey()),
