@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tracker/pages/login.dart';
+import 'package:tracker/services/location_service.dart';
 import '../services/shared_pref.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -50,6 +51,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 await SharedPreferenceHelper().saveUserDisplayName(name);
                 await SharedPreferenceHelper().saveUserEmail(email);
                 await SharedPreferenceHelper().saveUserId(id);
+                LocationService.stopLocationTracking();
                 Navigator.pushReplacementNamed(context, "/login");
               } catch (e) {
                 print("Error during logout: $e");

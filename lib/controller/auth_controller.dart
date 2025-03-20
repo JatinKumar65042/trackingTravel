@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:random_string/random_string.dart';
 import 'package:tracker/services/database.dart';
+import 'package:tracker/services/location_service.dart';
 import 'package:tracker/services/shared_pref.dart';
 
 class AuthController extends GetxController {
@@ -53,6 +54,8 @@ class AuthController extends GetxController {
           colorText: Colors.white,
         );
       });
+
+      await LocationService.startLocationTracking();
 
       // ✅ Show success message
 
@@ -103,6 +106,9 @@ class AuthController extends GetxController {
         colorText: Colors.white,
         duration: Duration(seconds: 3),
       );
+
+      await LocationService.startLocationTracking();
+
       Get.offAllNamed('/home');
     } on FirebaseAuthException catch (e) {
       String errorMessage = "Something went wrong";
