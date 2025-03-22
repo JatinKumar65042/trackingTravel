@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tracker/pages/login.dart';
+import 'package:tracker/services/route_observer.dart';
 
 import '../controller/auth_controller.dart';
 
@@ -167,7 +168,7 @@ class _SignUpState extends State<SignUp> {
     String email = _emailController.text;
     String password = _passwordController.text;
     String cnfpassword = _cnfpasswordController.text;
-
+    print("📍 Current Route: ${AppState.currentRoute}");
     if (username.isEmpty ||
         email.isEmpty ||
         password.isEmpty ||
