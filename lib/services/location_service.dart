@@ -1,10 +1,15 @@
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tracker/services/notification_service.dart';
 import 'package:tracker/services/shared_pref.dart';
+import 'package:flutter/material.dart';
+import 'package:tracker/services/route_observer.dart';
 
 class LocationService {
   static StreamSubscription<Position>? positionStream;
+  static Position? _lastPosition;
+  static Timer? _inactivityTimer; // Timer to track location inactivity
 
   // ✅ Store the first location when the user logs in
   static Future<void> storeFirstLocation() async {
@@ -49,6 +54,9 @@ class LocationService {
   // ✅ Start real-time tracking after first login
   static Future<void> startLocationTracking() async {
     try {
+      // ✅ Initialize Notifications
+      await NotificationService.init();
+
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
@@ -57,6 +65,9 @@ class LocationService {
           return;
         }
       }
+
+      // ✅ Start the inactivity timer
+      _startInactivityTimer();
 
       // ✅ Listen to location updates
       positionStream = Geolocator.getPositionStream(
@@ -81,6 +92,31 @@ class LocationService {
         }, SetOptions(merge: true));
 
         print("📍 Updated location: (${position.latitude}, ${position.longitude}) for userId: $userId");
+
+        if (_lastPosition != null) {
+          double distance = Geolocator.distanceBetween(
+            _lastPosition!.latitude,
+            _lastPosition!.longitude,
+            position.latitude,
+            position.longitude,
+          );
+          if (distance >= 10) {
+            // ✅ Check if the user is already on the /location page
+            if (AppState.currentRoute.trim().toLowerCase() != '/location') {
+              NotificationService.showNotification(
+                title: "Are you going somewhere?",
+                body: "Start navigation now.",
+                type: "start_navigation",
+              );
+            } else {
+              print("🚀 User is already on /location, skipping notification...");
+            }
+          }
+        }
+        _lastPosition = position;
+
+        // ✅ Reset the inactivity timer on location update
+        _resetInactivityTimer();
       });
 
     } catch (e) {
@@ -88,9 +124,28 @@ class LocationService {
     }
   }
 
+  // ✅ Start the inactivity timer
+  static void _startInactivityTimer() {
+    _inactivityTimer = Timer(Duration(minutes: 2), () {
+      // ✅ Send notification if no location updates for 2 minutes
+      NotificationService.showNotification(
+        title: "Have you reached your destination?",
+        body: "Tap to go home.",
+        type: "destination_reached",
+      );
+    });
+  }
+
+  // ✅ Reset the inactivity timer
+  static void _resetInactivityTimer() {
+    _inactivityTimer?.cancel(); // Cancel the existing timer
+    _startInactivityTimer(); // Start a new timer
+  }
+
   // ✅ Stop tracking location when needed
   static void stopLocationTracking() {
     positionStream?.cancel();
     print("🛑 Location tracking stopped.");
   }
+
 }

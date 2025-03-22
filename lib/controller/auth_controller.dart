@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:random_string/random_string.dart';
 import 'package:tracker/services/database.dart';
 import 'package:tracker/services/location_service.dart';
+import 'package:tracker/services/notification_service.dart';
+import 'package:tracker/services/route_observer.dart';
 import 'package:tracker/services/shared_pref.dart';
 
 class AuthController extends GetxController {
@@ -55,7 +58,7 @@ class AuthController extends GetxController {
         );
       });
 
-      await LocationService.startLocationTracking();
+      // await LocationService.startLocationTracking();
 
       // ✅ Show success message
 
@@ -98,6 +101,21 @@ class AuthController extends GetxController {
       await SharedPreferenceHelper().saveUserEmail(email);
       await SharedPreferenceHelper().saveUserDisplayName(myname);
 
+      // ✅ Get FCM Token
+      String? fcmToken = await FirebaseMessaging.instance.getToken();
+      print("FCM Token: $fcmToken");
+
+      // ✅ Update FCM Token in Firestore
+      await FirebaseFirestore.instance.collection('users').doc(myid).update({
+        "fcmToken": fcmToken,
+      });
+      print("📍 Current Route: ${AppState.currentRoute}");
+      // ✅ Send local notification on login success
+      NotificationService.showNotification(
+        title: "Welcome Back, $myname! 🎉",
+        body: "You have successfully logged in.",
+      );
+
       Get.snackbar(
         "Success 🎉",
         "Login Successful",
@@ -107,7 +125,7 @@ class AuthController extends GetxController {
         duration: Duration(seconds: 3),
       );
 
-      await LocationService.startLocationTracking();
+      // await LocationService.startLocationTracking();
 
       Get.offAllNamed('/home');
     } on FirebaseAuthException catch (e) {

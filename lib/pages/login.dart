@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'dart:ui'; // Required for blur effect
 import 'package:lottie/lottie.dart';
 import 'package:tracker/pages/signup.dart';
+import 'package:tracker/services/route_observer.dart';
 
 import '../controller/auth_controller.dart';
 
@@ -285,7 +286,7 @@ class _LogInState extends State<LogIn> {
   login(){
     String email = _emailController.text ;
     String password = _passwordController.text;
-
+    print("📍 Current Route: ${AppState.currentRoute}");
     if (email.isEmpty || password.isEmpty) {
       Get.snackbar(
         "Error",
