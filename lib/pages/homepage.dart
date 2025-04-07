@@ -46,21 +46,21 @@ class _HomeState extends State<Home> {
             Divider(),
             Column(
               children:
-                  transportModes.map((mode) {
-                    return ListTile(
-                      title: Text(
-                        mode,
-                        style: TextStyle(
-                          color: mode == "None" ? Colors.red : Colors.black,
-                          fontWeight:
-                              mode == "None"
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                        ),
-                      ),
-                      onTap: () => _selectTransportMode(mode),
-                    );
-                  }).toList(),
+              transportModes.map((mode) {
+                return ListTile(
+                  title: Text(
+                    mode,
+                    style: TextStyle(
+                      color: mode == "None" ? Colors.red : Colors.black,
+                      fontWeight:
+                      mode == "None"
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
+                  onTap: () => _selectTransportMode(mode),
+                );
+              }).toList(),
             ),
           ],
         ),
@@ -191,8 +191,8 @@ class _HomeState extends State<Home> {
                           MaterialPageRoute(
                             builder:
                                 (context) => Co2Emission(
-                                  selectedTransport: selectedTransport,
-                                ),
+                              selectedTransport: selectedTransport,
+                            ),
                           ),
                         );
                       },
