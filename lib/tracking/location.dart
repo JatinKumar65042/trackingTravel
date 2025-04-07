@@ -15,7 +15,8 @@ class LocationSelectionPage extends StatefulWidget {
   LocationSelectionPageState createState() => LocationSelectionPageState();
 }
 
-class LocationSelectionPageState extends State<LocationSelectionPage> with WidgetsBindingObserver {
+class LocationSelectionPageState extends State<LocationSelectionPage>
+    with WidgetsBindingObserver {
   LatLng? fromLocation;
   LatLng? toLocation;
   double? distance;
@@ -27,13 +28,15 @@ class LocationSelectionPageState extends State<LocationSelectionPage> with Widge
   List<Map<String, dynamic>> fromSuggestions = [];
   List<Map<String, dynamic>> toSuggestions = [];
 
-  final String orsApiKey = "5b3ce3597851110001cf624876be9231122f4a5ba3dfa0adad8f4f0b"; // Get from ORS
+  final String orsApiKey =
+      "5b3ce3597851110001cf624876be9231122f4a5ba3dfa0adad8f4f0b"; // Get from ORS
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     AppState.currentRoute = '/location';
+    LocationService.startLocationTracking();
     _startLocationUpdates();
   }
 
@@ -42,7 +45,8 @@ class LocationSelectionPageState extends State<LocationSelectionPage> with Widge
     WidgetsBinding.instance.removeObserver(this);
     // Get the previous route before assigning a new one
     String previousRoute = ModalRoute.of(context)?.settings.name ?? '/home';
-    AppState.currentRoute = previousRoute; // Assign previous route instead of keeping /location
+    AppState.currentRoute =
+        previousRoute; // Assign previous route instead of keeping /location
     LocationService.stopLocationTracking(); // Stop tracking
     super.dispose();
   }
@@ -52,7 +56,8 @@ class LocationSelectionPageState extends State<LocationSelectionPage> with Widge
     if (state == AppLifecycleState.resumed) {
       print("📌 App is active again...");
       LocationService.startLocationTracking(); // Start tracking when app is in the foreground
-    } else if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
       print("📌 App in background, stopping tracking...");
       LocationService.stopLocationTracking(); // Stop tracking when app is in the background
     }
@@ -65,8 +70,10 @@ class LocationSelectionPageState extends State<LocationSelectionPage> with Widge
     );
 
     Geolocator.getPositionStream(locationSettings: locationSettings).listen(
-          (Position position) {
-        debugPrint("📍 Updated Location: ${position.latitude}, ${position.longitude}");
+      (Position position) {
+        debugPrint(
+          "📍 Updated Location: ${position.latitude}, ${position.longitude}",
+        );
         double currentZoom = _mapController.camera.zoom;
         setState(() {
           fromLocation = LatLng(position.latitude, position.longitude);
@@ -92,9 +99,11 @@ class LocationSelectionPageState extends State<LocationSelectionPage> with Widge
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      final List<dynamic> coordinates = data["features"][0]["geometry"]["coordinates"];
+      final List<dynamic> coordinates =
+          data["features"][0]["geometry"]["coordinates"];
 
-      List<LatLng> newRoutePoints = coordinates.map((coord) => LatLng(coord[1], coord[0])).toList();
+      List<LatLng> newRoutePoints =
+          coordinates.map((coord) => LatLng(coord[1], coord[0])).toList();
 
       setState(() {
         routePoints = newRoutePoints;
@@ -131,7 +140,10 @@ class LocationSelectionPageState extends State<LocationSelectionPage> with Widge
     });
   }
 
-  Future<void> _reverseGeocode(LatLng point, TextEditingController controller) async {
+  Future<void> _reverseGeocode(
+    LatLng point,
+    TextEditingController controller,
+  ) async {
     final url = Uri.parse(
       "https://nominatim.openstreetmap.org/reverse?format=json&lat=${point.latitude}&lon=${point.longitude}",
     );
@@ -159,17 +171,27 @@ class LocationSelectionPageState extends State<LocationSelectionPage> with Widge
       final List<dynamic> results = json.decode(response.body);
       setState(() {
         if (isFrom) {
-          fromSuggestions = results.map((place) => {
-            "name": place["display_name"],
-            "lat": double.parse(place["lat"]),
-            "lon": double.parse(place["lon"]),
-          }).toList();
+          fromSuggestions =
+              results
+                  .map(
+                    (place) => {
+                      "name": place["display_name"],
+                      "lat": double.parse(place["lat"]),
+                      "lon": double.parse(place["lon"]),
+                    },
+                  )
+                  .toList();
         } else {
-          toSuggestions = results.map((place) => {
-            "name": place["display_name"],
-            "lat": double.parse(place["lat"]),
-            "lon": double.parse(place["lon"]),
-          }).toList();
+          toSuggestions =
+              results
+                  .map(
+                    (place) => {
+                      "name": place["display_name"],
+                      "lat": double.parse(place["lat"]),
+                      "lon": double.parse(place["lon"]),
+                    },
+                  )
+                  .toList();
         }
       });
     } else {
@@ -246,7 +268,9 @@ class LocationSelectionPageState extends State<LocationSelectionPage> with Widge
             child: FlutterMap(
               mapController: _mapController,
               options: MapOptions(
-                initialCenter: fromLocation ?? LatLng(20.5937, 78.9629), // Default to India
+                initialCenter:
+                    fromLocation ??
+                    LatLng(20.5937, 78.9629), // Default to India
                 initialZoom: 10.0,
                 onTap: (tapPosition, point) {
                   if (fromLocation == null) {
@@ -258,7 +282,8 @@ class LocationSelectionPageState extends State<LocationSelectionPage> with Widge
               ),
               children: [
                 TileLayer(
-                  urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  urlTemplate:
+                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                   subdomains: ['a', 'b', 'c'],
                 ),
                 if (fromLocation != null)
@@ -337,8 +362,9 @@ class LocationSelectionPageState extends State<LocationSelectionPage> with Widge
           Column(
             children: List.generate(
               isFrom ? fromSuggestions.length : toSuggestions.length,
-                  (index) {
-                var place = isFrom ? fromSuggestions[index] : toSuggestions[index];
+              (index) {
+                var place =
+                    isFrom ? fromSuggestions[index] : toSuggestions[index];
                 return ListTile(
                   title: Text(place["name"]),
                   onTap: () => _selectLocation(place, isFrom),

@@ -22,15 +22,13 @@ import 'package:tracker/services/route_observer.dart';
 
 final RouteObserverService routeObserver = RouteObserverService();
 
-void main() async{
-
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await NotificationService.init();
-  await LocationService.startLocationTracking();
   // Initialize AuthController before the app starts
   Get.put(AuthController());
-  bool isLoggedIn  = await checkSession();
+  bool isLoggedIn = await checkSession();
   print("Loggin Check");
   print(isLoggedIn);
   runApp(MyApp(isLoggedIn: isLoggedIn));
@@ -39,22 +37,20 @@ void main() async{
 Future<bool> checkSession() async {
   String? userId = await SharedPreferenceHelper().getUserId();
   print("UserId: $userId");
-
   return userId != null && userId.isNotEmpty;
 }
 
 class MyApp extends StatelessWidget {
-  final bool isLoggedIn ;
-  MyApp({super.key , required this.isLoggedIn});
+  final bool isLoggedIn;
+  MyApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp( // ✅ Use GetMaterialApp for GetX navigation
+    return GetMaterialApp(
+      // ✅ Use GetMaterialApp for GetX navigation
       debugShowCheckedModeBanner: false,
       title: "Flutter Firebase",
-      theme: ThemeData(
-        primarySwatch: Colors.pink,
-      ),
+      theme: ThemeData(primarySwatch: Colors.pink),
       navigatorObservers: [routeObserver],
       initialRoute: '/',
       home: SplashScreen(child: isLoggedIn ? Home() : LogIn()),
@@ -77,5 +73,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-

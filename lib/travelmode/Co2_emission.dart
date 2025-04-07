@@ -45,8 +45,8 @@ class _Co2EmissionState extends State<Co2Emission>
       'Bus': 80.0,
       'Train': 40.0,
       'Walking': 0.0,
-      'Bicycle':0.0,
-      'Flight' : 250.0,
+      'Bicycle': 0.0,
+      'Flight': 250.0,
     };
 
     // Transport images (Replace with actual URLs)
