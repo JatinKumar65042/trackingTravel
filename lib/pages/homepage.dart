@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:tracker/services/permission_service.dart';
 import 'package:tracker/travelmode/Co2_emission.dart';
+import 'package:tracker/services/Notice_board_service.dart';
+import 'package:tracker/services/Li_Chi.dart';
+import 'package:tracker/services/Kno_call.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -11,6 +15,16 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   String selectedTransport = "Select Travel Mode";
   bool showNextButton = false;
+  int _selectedIndex = 0; // Bottom Navigation Bar Index
+
+  @override
+  void initState() {
+    super.initState();
+    // Request location permissions when the app starts
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      PermissionService.requestLocationPermission(context);
+    });
+  }
 
   void _selectTransportMode(String mode) {
     setState(() {
@@ -18,6 +32,33 @@ class _HomeState extends State<Home> {
       showNextButton = mode != "None";
     });
     Navigator.pop(context);
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => NoticeBoard()),
+        );
+        break;
+      case 1:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LiChiChat()),
+        );
+        break;
+      case 2:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => KnoCollChat()),
+        );
+        break;
+    }
   }
 
   Widget _buildTransportSelection() {
@@ -46,21 +87,23 @@ class _HomeState extends State<Home> {
             Divider(),
             Column(
               children:
-              transportModes.map((mode) {
-                return ListTile(
-                  title: Text(
-                    mode,
-                    style: TextStyle(
-                      color: mode == "None" ? Colors.red : Colors.black,
-                      fontWeight:
-                      mode == "None"
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                    ),
-                  ),
-                  onTap: () => _selectTransportMode(mode),
-                );
-              }).toList(),
+                  transportModes
+                      .map(
+                        (mode) => ListTile(
+                          title: Text(
+                            mode,
+                            style: TextStyle(
+                              color: mode == "None" ? Colors.red : Colors.black,
+                              fontWeight:
+                                  mode == "None"
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                            ),
+                          ),
+                          onTap: () => _selectTransportMode(mode),
+                        ),
+                      )
+                      .toList(),
             ),
           ],
         ),
@@ -132,50 +175,50 @@ class _HomeState extends State<Home> {
                 ),
 
                 // **Mode of Travel Selection**
-                Container(
-                  margin: EdgeInsets.only(left: 30, right: 30, top: 30),
-                  child: Material(
-                    elevation: 5,
-                    borderRadius: BorderRadius.circular(50),
-                    color: Colors.transparent,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 15,
-                        horizontal: 20,
+                GestureDetector(
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(10),
+                        ),
                       ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(width: 1.5),
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            selectedTransport,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+                      builder: (context) {
+                        return _buildTransportSelection();
+                      },
+                    );
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(left: 30, right: 30, top: 30),
+                    child: Material(
+                      elevation: 5,
+                      borderRadius: BorderRadius.circular(50),
+                      color: Colors.transparent,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 15,
+                          horizontal: 20,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(width: 1.5),
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              selectedTransport,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(10),
-                                  ),
-                                ),
-                                builder: (context) {
-                                  return _buildTransportSelection();
-                                },
-                              );
-                            },
-                            child: Icon(Icons.keyboard_arrow_down),
-                          ),
-                        ],
+                            Icon(Icons.keyboard_arrow_down),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -191,8 +234,8 @@ class _HomeState extends State<Home> {
                           MaterialPageRoute(
                             builder:
                                 (context) => Co2Emission(
-                              selectedTransport: selectedTransport,
-                            ),
+                                  selectedTransport: selectedTransport,
+                                ),
                           ),
                         );
                       },
@@ -212,121 +255,10 @@ class _HomeState extends State<Home> {
                       ),
                     ),
                   ),
-
                 SizedBox(height: 20),
-
-                // **User Post Section**
-                Container(
-                  margin: EdgeInsets.only(left: 30, right: 30),
-                  child: Material(
-                    elevation: 3.0,
-                    borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              top: 20.0,
-                              left: 20.0,
-                            ),
-                            child: Row(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(50),
-                                  child: Image.asset(
-                                    "images/avatar.jpg",
-                                    height: 50,
-                                    width: 50,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                SizedBox(width: 10),
-                                Text(
-                                  "ROUNAK SAINI",
-                                  style: TextStyle(
-                                    fontSize: 25.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 12),
-                          Image.asset("images/Mandir.jpg"),
-                          SizedBox(height: 5),
-                          ListTile(
-                            leading: Icon(
-                              Icons.location_on,
-                              color: Colors.blue,
-                            ),
-                            title: Text(
-                              "Kashi Vishwanath Temple, Varanasi",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Text(
-                              "Historical moment in my life was , I witnessed the KVT",
-                              style: TextStyle(
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.w300,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 15.0),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.favorite_outline,
-                                  color: Colors.black54,
-                                  size: 35,
-                                ),
-                                SizedBox(width: 10),
-                                Text(
-                                  "Like",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontFamily: 'Gilroy-Italic',
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                SizedBox(width: 100),
-                                Icon(
-                                  Icons.comment_outlined,
-                                  color: Colors.black54,
-                                  size: 28,
-                                ),
-                                SizedBox(width: 10),
-
-                                Text(
-                                  "Comment",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontFamily: 'Gilroy-Italic',
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
-
           // **Static Icons**
           Positioned(
             top: 40,
@@ -357,22 +289,13 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 Spacer(),
-                Material(
-                  elevation: 5.0,
-                  borderRadius: BorderRadius.circular(10),
-                  child: Container(
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(Icons.add, color: Colors.blue, size: 30),
-                  ),
-                ),
                 SizedBox(width: 10),
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushNamed(context, "/me"); // Navigate to "/me" route
+                    Navigator.pushNamed(
+                      context,
+                      "/me",
+                    ); // Navigate to "/me" route
                   },
                   child: Material(
                     elevation: 5.0,
@@ -390,6 +313,42 @@ class _HomeState extends State<Home> {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+
+      bottomNavigationBar: BottomNavigationBar(
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notice Board',
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Li-Chi'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.smart_toy),
+            label: 'KnO-Coll',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+
+  Widget _buildIcon(IconData icon, String label, String route) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, route);
+      },
+      child: Column(
+        children: [
+          Icon(icon, size: 40, color: Colors.blue),
+          SizedBox(height: 5),
+          Text(
+            label,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
         ],
       ),

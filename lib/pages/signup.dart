@@ -23,7 +23,7 @@ class _SignUpState extends State<SignUp> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset:
-          true, // Ensures UI adjusts when keyboard appears
+      true, // Ensures UI adjusts when keyboard appears
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
         child: Column(
@@ -129,11 +129,11 @@ class _SignUpState extends State<SignUp> {
   }
 
   Widget buildTextField(
-    String label,
-    TextEditingController controller,
-    IconData icon, {
-    bool obscureText = false,
-  }) {
+      String label,
+      TextEditingController controller,
+      IconData icon, {
+        bool obscureText = false,
+      }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

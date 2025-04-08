@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tracker/pages/login.dart';
 import 'package:tracker/services/location_service.dart';
 import '../services/shared_pref.dart';
@@ -12,13 +13,18 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String? email = "";
-  String? name="";
-  getthesharedpref()async{
+  String? name = "";
+  bool isEditingName = false;
+  bool isEditingEmail = false;
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+
+  getthesharedpref() async {
     name = await SharedPreferenceHelper().getUserDisplayName();
     email = await SharedPreferenceHelper().getUserEmail();
-    setState(() {
-
-    });
+    nameController.text = name ?? "";
+    emailController.text = email ?? "";
+    setState(() {});
   }
 
   @override
@@ -31,36 +37,37 @@ class _ProfilePageState extends State<ProfilePage> {
     // Implement logout functionality
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Logout"),
-        content: Text("Are you sure you want to log out?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("Cancel"),
+      builder:
+          (context) => AlertDialog(
+            title: Text("Logout"),
+            content: Text("Are you sure you want to log out?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () async {
+                  try {
+                    await _auth.signOut(); // Firebase logout
+                    Navigator.pop(context); // Close dialog
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Logged out successfully!")),
+                    );
+                    String name = "", email = "", id = "";
+                    await SharedPreferenceHelper().saveUserDisplayName(name);
+                    await SharedPreferenceHelper().saveUserEmail(email);
+                    await SharedPreferenceHelper().saveUserId(id);
+                    LocationService.stopLocationTracking();
+                    Navigator.pushReplacementNamed(context, "/login");
+                  } catch (e) {
+                    print("Error during logout: $e");
+                  }
+                },
+                child: Text("Logout", style: TextStyle(color: Colors.red)),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () async {
-              try {
-                await _auth.signOut(); // Firebase logout
-                Navigator.pop(context); // Close dialog
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Logged out successfully!")),
-                );
-                String name = "" ,email = "", id = "";
-                await SharedPreferenceHelper().saveUserDisplayName(name);
-                await SharedPreferenceHelper().saveUserEmail(email);
-                await SharedPreferenceHelper().saveUserId(id);
-                LocationService.stopLocationTracking();
-                Navigator.pushReplacementNamed(context, "/login");
-              } catch (e) {
-                print("Error during logout: $e");
-              }
-            },
-            child: Text("Logout", style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
     );
   }
 
@@ -86,7 +93,9 @@ class _ProfilePageState extends State<ProfilePage> {
               backgroundColor: Colors.blueAccent,
               child: CircleAvatar(
                 radius: 57,
-                backgroundImage: AssetImage("images/profile.jpg"), // Change image path
+                backgroundImage: AssetImage(
+                  "images/profile.jpg",
+                ), // Change image path
               ),
             ),
           ),
@@ -94,15 +103,130 @@ class _ProfilePageState extends State<ProfilePage> {
           SizedBox(height: 20),
 
           // Name
-          Text(
-            name ?? "User Name",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              isEditingName
+                  ? SizedBox(
+                    width: 200,
+                    child: TextField(
+                      controller: nameController,
+                      readOnly: true,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                      ),
+                    ),
+                  )
+                  : Text(
+                    name ?? "User Name",
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+              SizedBox(width: 10),
+              IconButton(
+                icon: Icon(isEditingName ? Icons.check : Icons.edit),
+                onPressed: () async {
+                  if (isEditingName) {
+                    // Save the changes
+                    String newName = nameController.text.trim();
+                    if (newName.isNotEmpty) {
+                      String? userId =
+                          await SharedPreferenceHelper().getUserId();
+                      await FirebaseFirestore.instance
+                          .collection("users")
+                          .doc(userId)
+                          .update({"Name": newName});
+                      await SharedPreferenceHelper().saveUserDisplayName(
+                        newName,
+                      );
+                      setState(() {
+                        name = newName;
+                        isEditingName = false;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Name updated successfully!")),
+                      );
+                    }
+                  } else {
+                    setState(() {
+                      isEditingName = true;
+                    });
+                  }
+                },
+              ),
+            ],
           ),
 
+          SizedBox(height: 10),
+
           // Email
-          Text(
-            email ?? "user@example.com",
-            style: TextStyle(fontSize: 16, color: Colors.grey),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              isEditingEmail
+                  ? SizedBox(
+                    width: 200,
+                    child: TextField(
+                      controller: emailController,
+                      readOnly: true,
+                      style: TextStyle(fontSize: 16),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                      ),
+                    ),
+                  )
+                  : Text(
+                    email ?? "user@example.com",
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+              SizedBox(width: 10),
+              IconButton(
+                icon: Icon(isEditingEmail ? Icons.check : Icons.edit),
+                onPressed: () async {
+                  if (isEditingEmail) {
+                    // Save the changes
+                    String newEmail = emailController.text.trim();
+                    if (newEmail.isNotEmpty && newEmail.contains("@")) {
+                      String? userId =
+                          await SharedPreferenceHelper().getUserId();
+                      await FirebaseFirestore.instance
+                          .collection("users")
+                          .doc(userId)
+                          .update({"Email": newEmail});
+                      await SharedPreferenceHelper().saveUserEmail(newEmail);
+                      setState(() {
+                        email = newEmail;
+                        isEditingEmail = false;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Email updated successfully!")),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("Please enter a valid email address"),
+                        ),
+                      );
+                    }
+                  } else {
+                    setState(() {
+                      isEditingEmail = true;
+                    });
+                  }
+                },
+              ),
+            ],
           ),
 
           Spacer(),

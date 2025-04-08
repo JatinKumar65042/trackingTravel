@@ -23,7 +23,10 @@ class _TopPlacesState extends State<TopPlaces> {
                   // for back arrow button
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, "/home"); // Navigate to "/me" route
+                      Navigator.pushNamed(
+                        context,
+                        "/home",
+                      ); // Navigate to "/me" route
                     },
                     child: Material(
                       borderRadius: BorderRadius.circular(10),
@@ -44,7 +47,7 @@ class _TopPlacesState extends State<TopPlaces> {
                   // text placement for top places
                   SizedBox(width: MediaQuery.of(context).size.width / 5.5),
                   Text(
-                    "Top Places",
+                    "Departments",
                     style: TextStyle(
                       color: Colors.blue,
                       fontFamily: 'Gilroy-Italic',
@@ -67,7 +70,7 @@ class _TopPlacesState extends State<TopPlaces> {
                 ),
                 child: Container(
                   //padding to images in same row
-                  padding: (EdgeInsets.only(left:10, top: 30, right:10)),
+                  padding: (EdgeInsets.only(left: 10, top: 30, right: 10)),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.only(
@@ -81,11 +84,12 @@ class _TopPlacesState extends State<TopPlaces> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                    
                         //using row widget to put images in row together
                         Row(
                           //spacing between two top places in same row
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Ensures equal spacing
+                          mainAxisAlignment:
+                              MainAxisAlignment
+                                  .spaceEvenly, // Ensures equal spacing
                           children: [
                             Flexible(
                               child: Material(
@@ -96,9 +100,9 @@ class _TopPlacesState extends State<TopPlaces> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(20),
                                       child: Image.asset(
-                                        "images/India.jpg",
+                                        "images/civil.jpg",
                                         height: 250, // Reduced height
-                                        width: 160,  // Reduced width
+                                        width: 160, // Reduced width
                                         fit: BoxFit.cover,
                                       ),
                                     ),
@@ -115,11 +119,12 @@ class _TopPlacesState extends State<TopPlaces> {
                                         ),
                                         child: Center(
                                           child: Text(
-                                            "INDIA",
+                                            "CIVIL",
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontFamily: 'Gilroy-Italic',
-                                              fontSize: 24.0, // Slightly smaller font
+                                              fontSize:
+                                                  24.0, // Slightly smaller font
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
@@ -142,7 +147,7 @@ class _TopPlacesState extends State<TopPlaces> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(20),
                                       child: Image.asset(
-                                        "images/Italy.jpg",
+                                        "images/mechanical.jpg",
                                         height: 250,
                                         width: 160,
                                         fit: BoxFit.cover,
@@ -161,7 +166,7 @@ class _TopPlacesState extends State<TopPlaces> {
                                         ),
                                         child: Center(
                                           child: Text(
-                                            "ITALY",
+                                            "MECHANICAL",
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontFamily: 'Gilroy-Italic',
@@ -179,11 +184,13 @@ class _TopPlacesState extends State<TopPlaces> {
                           ],
                         ),
                         SizedBox(height: 20),
-                    
+
                         //using row widget to put images in row together
                         Row(
                           //spacing between two top places in same row
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Ensures equal spacing
+                          mainAxisAlignment:
+                              MainAxisAlignment
+                                  .spaceEvenly, // Ensures equal spacing
                           children: [
                             Flexible(
                               child: Material(
@@ -194,9 +201,9 @@ class _TopPlacesState extends State<TopPlaces> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(20),
                                       child: Image.asset(
-                                        "images/France.jpg",
+                                        "images/electrical.jpg",
                                         height: 250, // Reduced height
-                                        width: 160,  // Reduced width
+                                        width: 160, // Reduced width
                                         fit: BoxFit.cover,
                                       ),
                                     ),
@@ -213,11 +220,12 @@ class _TopPlacesState extends State<TopPlaces> {
                                         ),
                                         child: Center(
                                           child: Text(
-                                            "FRANCE",
+                                            "ELECTRICAL",
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontFamily: 'Gilroy-Italic',
-                                              fontSize: 24.0, // Slightly smaller font
+                                              fontSize:
+                                                  24.0, // Slightly smaller font
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
@@ -240,7 +248,7 @@ class _TopPlacesState extends State<TopPlaces> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(20),
                                       child: Image.asset(
-                                        "images/China.jpg",
+                                        "images/metallurgy.jpg",
                                         height: 250,
                                         width: 160,
                                         fit: BoxFit.cover,
@@ -259,7 +267,7 @@ class _TopPlacesState extends State<TopPlaces> {
                                         ),
                                         child: Center(
                                           child: Text(
-                                            "CHINA",
+                                            "METALLURGY",
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontFamily: 'Gilroy-Italic',
@@ -277,11 +285,13 @@ class _TopPlacesState extends State<TopPlaces> {
                           ],
                         ),
                         SizedBox(height: 20),
-                    
+
                         //using row widget to put images in row together
                         Row(
                           //spacing between two top places in same row
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Ensures equal spacing
+                          mainAxisAlignment:
+                              MainAxisAlignment
+                                  .spaceEvenly, // Ensures equal spacing
                           children: [
                             Flexible(
                               child: Material(
@@ -292,9 +302,9 @@ class _TopPlacesState extends State<TopPlaces> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(20),
                                       child: Image.asset(
-                                        "images/Disney.jpg",
+                                        "images/cse.jpg",
                                         height: 250, // Reduced height
-                                        width: 160,  // Reduced width
+                                        width: 160, // Reduced width
                                         fit: BoxFit.cover,
                                       ),
                                     ),
@@ -311,11 +321,12 @@ class _TopPlacesState extends State<TopPlaces> {
                                         ),
                                         child: Center(
                                           child: Text(
-                                            "HONG KONG",
+                                            "CSE",
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontFamily: 'Gilroy-Italic',
-                                              fontSize: 24.0, // Slightly smaller font
+                                              fontSize:
+                                                  24.0, // Slightly smaller font
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
@@ -338,7 +349,7 @@ class _TopPlacesState extends State<TopPlaces> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(20),
                                       child: Image.asset(
-                                        "images/NewYork.jpg",
+                                        "images/mnc.jpg",
                                         height: 250,
                                         width: 160,
                                         fit: BoxFit.cover,
@@ -357,7 +368,7 @@ class _TopPlacesState extends State<TopPlaces> {
                                         ),
                                         child: Center(
                                           child: Text(
-                                            "NEW YORK",
+                                            "MNC",
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontFamily: 'Gilroy-Italic',
@@ -374,7 +385,7 @@ class _TopPlacesState extends State<TopPlaces> {
                             ),
                           ],
                         ),
-                        SizedBox(height:50.0,),
+                        SizedBox(height: 50.0),
                       ],
                     ),
                   ),
