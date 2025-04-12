@@ -16,7 +16,6 @@ class _HomeState extends State<Home> {
   String selectedTransport = "Select Travel Mode";
   bool showNextButton = false;
   int _selectedIndex = 0; // Bottom Navigation Bar Index
-
   @override
   void initState() {
     super.initState();

@@ -6,6 +6,7 @@ import 'dart:ui'; // Required for blur effect
 import 'package:lottie/lottie.dart';
 import 'package:tracker/pages/signup.dart';
 import 'package:tracker/services/route_observer.dart';
+import 'package:tracker/widgets/loading_button.dart';
 
 import '../controller/auth_controller.dart';
 
@@ -17,194 +18,202 @@ class LogIn extends StatefulWidget {
 }
 
 class _LogInState extends State<LogIn> {
-  AuthController controller = Get.find() ;
+  AuthController controller = Get.find();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+
   void _showLoginDialog() {
     showDialog(
       context: context,
       builder:
           (context) => Dialog(
-        backgroundColor:
-        Colors.transparent, // Transparent to allow blur effect
-        child: Stack(
-          children: [
-            // Blurred Background
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(
-                  sigmaX: 10,
-                  sigmaY: 10,
-                ), // Blur effect
-                child: Container(
-                  padding: EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(
-                      alpha: 0.4,
-                    ), // Semi-transparent background
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.3),
+            backgroundColor:
+                Colors.transparent, // Transparent to allow blur effect
+            child: Stack(
+              children: [
+                // Blurred Background
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(
+                      sigmaX: 10,
+                      sigmaY: 10,
+                    ), // Blur effect
+                    child: Container(
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(
+                          alpha: 0.4,
+                        ), // Semi-transparent background
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            mainAxisAlignment:
+                                MainAxisAlignment.start, // Align left
+                            children: [
+                              IconButton(
+                                icon: Icon(
+                                  Icons.arrow_back,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(context); // Close dialog
+                                },
+                              ),
+                              SizedBox(
+                                width: 50,
+                              ), // Space between icon and text
+                              Text(
+                                "LOGIN",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          TextField(
+                            controller: _emailController,
+                            decoration: InputDecoration(
+                              hintText: "Enter Email Here",
+                              hintStyle: TextStyle(color: Colors.white54),
+                              suffixIcon: Icon(
+                                Icons.email,
+                                color: Colors.white,
+                              ),
+                              filled: true,
+                              fillColor: Colors.black.withValues(alpha: 0.2),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          SizedBox(height: 15),
+                          TextField(
+                            controller: _passwordController,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              hintText: "Enter Password",
+                              hintStyle: TextStyle(color: Colors.white54),
+                              suffixIcon: Icon(Icons.lock, color: Colors.white),
+                              filled: true,
+                              fillColor: Colors.black.withValues(alpha: 0.2),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment:
+                                MainAxisAlignment
+                                    .end, // Aligns text to the right
+                            children: [
+                              Text(
+                                "Forgot Password ? ",
+                                style: TextStyle(
+                                  color: Colors.deepPurpleAccent,
+                                  fontSize: 14,
+                                  fontFamily: 'Gilroy-Light',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment:
+                                MainAxisAlignment
+                                    .center, // Centers buttons horizontally
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => SignUp(),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  width: 100,
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(30),
+                                    color:
+                                        Colors
+                                            .white, // White background for SignUp
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "SignUp",
+                                      style: TextStyle(
+                                        color: Colors.deepPurpleAccent,
+                                        fontSize: 15,
+                                        fontFamily: 'Gilroy-Light',
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 60), // Space between buttons
+                              Obx(
+                                () => SizedBox(
+                                  width: 100,
+                                  child: LoadingButton(
+                                    onPressed: () async {
+                                      await controller.login(
+                                        _emailController.text.trim(),
+                                        _passwordController.text,
+                                      );
+                                    },
+                                    isLoading: controller.isLoading.value,
+                                    backgroundColor: Colors.deepPurpleAccent,
+                                    borderRadius: BorderRadius.circular(30),
+                                    padding: EdgeInsets.all(10),
+                                    child: Text(
+                                      "LogIn",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 15,
+                                        fontFamily: 'Gilroy-Light',
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment:
-                        MainAxisAlignment.start, // Align left
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                              Icons.arrow_back,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                            onPressed: () {
-                              Navigator.pop(context); // Close dialog
-                            },
-                          ),
-                          SizedBox(
-                            width: 50,
-                          ), // Space between icon and text
-                          Text(
-                            "LOGIN",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20),
-                      TextField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          hintText: "Enter Email Here",
-                          hintStyle: TextStyle(color: Colors.white54),
-                          suffixIcon: Icon(
-                            Icons.email,
-                            color: Colors.white,
-                          ),
-                          filled: true,
-                          fillColor: Colors.black.withValues(alpha: 0.2),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      SizedBox(height: 15),
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          hintText: "Enter Password",
-                          hintStyle: TextStyle(color: Colors.white54),
-                          suffixIcon: Icon(Icons.lock, color: Colors.white),
-                          filled: true,
-                          fillColor: Colors.black.withValues(alpha: 0.2),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end, // Aligns text to the right
-                        children: [
-                          Text(
-                            "Forgot Password ? ",
-                            style: TextStyle(
-                              color: Colors.deepPurpleAccent,
-                              fontSize: 14,
-                              fontFamily: 'Gilroy-Light',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment:
-                        MainAxisAlignment.center, // Centers buttons horizontally
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>SignUp(),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              width: 100,
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(30),
-                                color:
-                                Colors.white, // White background for SignUp
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "SignUp",
-                                  style: TextStyle(
-                                    color: Colors.deepPurpleAccent,
-                                    fontSize: 15,
-                                    fontFamily: 'Gilroy-Light',
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 60), // Space between buttons
-                          GestureDetector(
-                            onTap: () => login(),
-                            child: Container(
-                              width: 100,
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(30),
-                                color:
-                                Colors.deepPurpleAccent, // Purple background for LogIn
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "LogIn",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                    fontFamily: 'Gilroy-Light',
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset : false,
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.black,
       body: Stack(
         children: [
@@ -283,8 +292,9 @@ class _LogInState extends State<LogIn> {
       ),
     );
   }
-  login(){
-    String email = _emailController.text ;
+
+  login() {
+    String email = _emailController.text;
     String password = _passwordController.text;
     print("📍 Current Route: ${AppState.currentRoute}");
     if (email.isEmpty || password.isEmpty) {
@@ -299,6 +309,6 @@ class _LogInState extends State<LogIn> {
       return; // Stop execution
     }
 
-    controller.login(email, password) ;
+    controller.login(email, password);
   }
 }

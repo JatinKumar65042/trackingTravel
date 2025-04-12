@@ -4,6 +4,7 @@ import 'package:tracker/pages/login.dart';
 import 'package:tracker/services/route_observer.dart';
 
 import '../controller/auth_controller.dart';
+import '../widgets/loading_button.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -23,7 +24,7 @@ class _SignUpState extends State<SignUp> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset:
-      true, // Ensures UI adjusts when keyboard appears
+          true, // Ensures UI adjusts when keyboard appears
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
         child: Column(
@@ -62,17 +63,18 @@ class _SignUpState extends State<SignUp> {
                   SizedBox(height: 30),
                   Row(
                     children: [
-                      GestureDetector(
-                        onTap: () => signup(),
-                        child: Container(
-                          margin: EdgeInsets.only(left: 70),
-                          width: 140,
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
+                      Container(
+                        margin: EdgeInsets.only(left: 70),
+                        width: 140,
+                        child: Obx(
+                          () => LoadingButton(
+                            onPressed: () async {
+                              await signup();
+                            },
+                            isLoading: controller.isLoading.value,
+                            backgroundColor: Colors.white,
                             borderRadius: BorderRadius.circular(30),
-                            color: Colors.white,
-                          ),
-                          child: Center(
+                            padding: EdgeInsets.all(10),
                             child: Text(
                               "SignUp",
                               style: TextStyle(
@@ -129,11 +131,11 @@ class _SignUpState extends State<SignUp> {
   }
 
   Widget buildTextField(
-      String label,
-      TextEditingController controller,
-      IconData icon, {
-        bool obscureText = false,
-      }) {
+    String label,
+    TextEditingController controller,
+    IconData icon, {
+    bool obscureText = false,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -163,7 +165,7 @@ class _SignUpState extends State<SignUp> {
     );
   }
 
-  signup() {
+  Future<void> signup() async {
     String username = _usernameController.text;
     String email = _emailController.text;
     String password = _passwordController.text;

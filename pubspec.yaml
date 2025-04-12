@@ -43,6 +43,7 @@ dependencies:
   random_string: ^2.3.1
   fluttertoast: ^8.2.10
   shared_preferences: ^2.5.2
+  share_plus: ^10.1.4
   get: ^4.7.2
   latlong2: ^0.9.1
   geolocator: ^13.0.2
@@ -60,6 +61,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   firebase_app_check: ^0.3.2+4
+  connectivity_plus: ^5.0.2
   permission_handler: ^11.4.0
   flutter_launcher_icons: ^0.14.3
   flutter_svg: ^2.0.17
@@ -97,6 +99,13 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - images/splash.json
+    - images/car.jpg
+    - images/wheeler.jpg
+    - images/bus.jpg
+    - images/train.jpg
+    - images/flight.jpg
+    - images/walking.jpg
+    - images/bicycle.jpg
     - images/
   #     - images/a_dot_ham.jpeg
 
