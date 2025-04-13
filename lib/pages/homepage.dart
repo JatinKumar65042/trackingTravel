@@ -115,10 +115,12 @@ class _HomeState extends State<Home> {
     return Scaffold(
       body: Stack(
         children: [
+          // **Scrollable Content**
           SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // **Valley Image with Overlay Text**
                 Stack(
                   children: [
                     Image.asset(
@@ -137,6 +139,7 @@ class _HomeState extends State<Home> {
                             "Fun One!\nTravel Done",
                             style: TextStyle(
                               color: Colors.white,
+                              fontFamily: 'PlayfairDisplay-VariableFont_wght',
                               fontSize: 35.0,
                               fontWeight: FontWeight.bold,
                               shadows: [
@@ -152,6 +155,7 @@ class _HomeState extends State<Home> {
                             "-Travelling Community",
                             style: TextStyle(
                               color: Colors.white,
+                              fontFamily: 'Gilroy-Light',
                               fontSize: 18.0,
                               fontWeight: FontWeight.bold,
                               shadows: [
