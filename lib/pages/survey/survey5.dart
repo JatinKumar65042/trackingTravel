@@ -77,7 +77,7 @@ class _Survey5State extends State<Survey5> {
 
   void saveSelection(String surveyField) async {
     if (selectedOption != null) {
-      if (myid == null) {
+      if (myid == null || myid!.isEmpty) {
         print("Error: userId is null or empty!");
         return;
       }
@@ -85,26 +85,30 @@ class _Survey5State extends State<Survey5> {
       try {
         // ✅ Store the survey response in "surveys" collection
         await FirebaseFirestore.instance.collection('surveys').doc(myid).set({
-          'id':myid,
-          surveyField: selectedOption, // ✅ Store each survey response
-          'timestamp': Timestamp.now(), // ✅ Store timestamp for tracking
-        }, SetOptions(merge: true)); // ✅ Merge instead of overwriting
+          'id': myid,
+          surveyField: selectedOption, // ✅ Store last survey response
+          'timestamp': Timestamp.now(),
+        }, SetOptions(merge: true));
+
+        // ✅ Mark survey as completed in Firestore (users collection)
+        await FirebaseFirestore.instance.collection('users').doc(myid).update({
+          'surveyCompleted': true, // ✅ Mark survey as completed
+        });
 
         // ✅ Show success message
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Selection saved: $selectedOption')),
+          SnackBar(content: Text('Survey Completed Successfully!')),
         );
 
-        // ✅ Navigate to next survey page
+        // ✅ Navigate to home page
         Future.delayed(Duration(seconds: 1), () {
-          Get.offNamed('/home'); // Change dynamically for each survey
+          Get.offAllNamed('/home'); // ✅ Redirect to Home Page
         });
 
       } catch (e) {
-
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error saving selection! $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving survey! $e')),
+        );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
