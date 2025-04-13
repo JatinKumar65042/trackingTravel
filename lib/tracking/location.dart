@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:tracker/services/location_service.dart';
 import 'package:tracker/services/route_observer.dart';
 
@@ -17,17 +18,32 @@ class LocationSelectionPage extends StatefulWidget {
 
 class LocationSelectionPageState extends State<LocationSelectionPage>
     with WidgetsBindingObserver {
+  bool _destinationConfirmed = false;
+  bool _destinationReached = false;
+  int locationUpdateCount = 0;
   LatLng? fromLocation;
   LatLng? toLocation;
   double? distance;
   List<LatLng> routePoints = [];
+  // Holds the last location at which the route was fetched.
+  LatLng? _lastRouteFetchLocation;
+  // Threshold in meters after which the route is recalculated.
+  final double _updateThreshold = 10.0;
+
+  // Added variable to store current zoom level.
+  double _currentZoom = 10.0;
+
+  // Track initial location setup
+  bool _initialLocationSet = false;
+
+  // New loading state variable
+  bool _isLoadingLocation = true;
 
   final MapController _mapController = MapController();
   final TextEditingController _fromController = TextEditingController();
   final TextEditingController _toController = TextEditingController();
   List<Map<String, dynamic>> fromSuggestions = [];
   List<Map<String, dynamic>> toSuggestions = [];
-
   final String orsApiKey =
       "5b3ce3597851110001cf624876be9231122f4a5ba3dfa0adad8f4f0b"; // Get from ORS
 
@@ -37,7 +53,19 @@ class LocationSelectionPageState extends State<LocationSelectionPage>
     WidgetsBinding.instance.addObserver(this);
     AppState.currentRoute = '/location';
     LocationService.startLocationTracking();
+    // Show toast for location fetching
+    _showLocationFetchingToast();
     _startLocationUpdates();
+  }
+
+  void _showLocationFetchingToast() {
+    Fluttertoast.showToast(
+      msg: "Please wait while we are fetching your current location",
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.CENTER,
+      backgroundColor: Colors.blue,
+      textColor: Colors.white,
+    );
   }
 
   @override
@@ -54,11 +82,11 @@ class LocationSelectionPageState extends State<LocationSelectionPage>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      print("📌 App is active again...");
+      debugPrint("📌 App is active again...");
       LocationService.startLocationTracking(); // Start tracking when app is in the foreground
     } else if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive) {
-      print("📌 App in background, stopping tracking...");
+      debugPrint("📌 App in background, stopping tracking...");
       LocationService.stopLocationTracking(); // Stop tracking when app is in the background
     }
   }
@@ -66,24 +94,91 @@ class LocationSelectionPageState extends State<LocationSelectionPage>
   void _startLocationUpdates() {
     const LocationSettings locationSettings = LocationSettings(
       accuracy: LocationAccuracy.high,
-      distanceFilter: 10, // 🔹 Update every 10 meters
+      distanceFilter: 10, // Update every 10 meters
     );
 
     Geolocator.getPositionStream(locationSettings: locationSettings).listen(
       (Position position) {
+        locationUpdateCount++; // <--- increment here
         debugPrint(
           "📍 Updated Location: ${position.latitude}, ${position.longitude}",
         );
-        double currentZoom = _mapController.camera.zoom;
-        setState(() {
-          fromLocation = LatLng(position.latitude, position.longitude);
-        });
+        final newLocation = LatLng(position.latitude, position.longitude);
 
-        // Move the map to the new location
-        _mapController.move(fromLocation!, currentZoom);
+        // Only move the map when first initializing
+        if (_isLoadingLocation || !_initialLocationSet) {
+          setState(() {
+            fromLocation = newLocation;
+            _isLoadingLocation = false;
+            _initialLocationSet = true;
+          });
+
+          // Initial map centering only once when location is first obtained
+          _mapController.move(newLocation, _currentZoom);
+        } else {
+          // Just update the marker position without moving the map
+          setState(() {
+            fromLocation = newLocation;
+          });
+        }
+
+        // If destination is set, check if we should re-fetch route.
+        if (toLocation != null) {
+          if (_lastRouteFetchLocation == null) {
+            _lastRouteFetchLocation = newLocation;
+            _fetchRoute();
+          } else {
+            final double movedDistance = Distance().distance(
+              _lastRouteFetchLocation!,
+              newLocation,
+            );
+            if (movedDistance > _updateThreshold) {
+              _lastRouteFetchLocation = newLocation;
+              _fetchRoute();
+            }
+
+            // Check if user has reached destination when destination is confirmed
+            if (_destinationConfirmed && !_destinationReached) {
+              final double distanceToDestination = Distance().distance(
+                newLocation,
+                toLocation!,
+              );
+
+              // Consider destination reached if within 10 meters
+              if (distanceToDestination < 10) {
+                setState(() {
+                  _destinationReached = true;
+                });
+
+                Fluttertoast.showToast(
+                  msg: "Destination reached! Great job!",
+                  toastLength: Toast.LENGTH_LONG,
+                  gravity: ToastGravity.CENTER,
+                  backgroundColor: Colors.green,
+                  textColor: Colors.white,
+                );
+
+                // Navigate back with the location update count
+                Future.delayed(Duration(seconds: 5), () {
+                  Navigator.pop(context, locationUpdateCount);
+                });
+              }
+            }
+          }
+        }
       },
       onError: (error) {
         debugPrint("❌ Location Stream Error: $error");
+        setState(() {
+          _isLoadingLocation = false; // Hide loader in case of error
+        });
+        Fluttertoast.showToast(
+          msg: "Error fetching location. Please check permissions.",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
       },
     );
   }
@@ -134,6 +229,8 @@ class LocationSelectionPageState extends State<LocationSelectionPage>
       } else {
         toLocation = point;
         _reverseGeocode(point, _toController);
+        // Reset the last route fetch location so that new route can be fetched.
+        _lastRouteFetchLocation = fromLocation;
       }
       _updateDistance();
       _fetchRoute();
@@ -211,134 +308,277 @@ class LocationSelectionPageState extends State<LocationSelectionPage>
         toLocation = selectedLatLng;
         _toController.text = place["name"];
         toSuggestions = [];
+        // Reset _lastRouteFetchLocation when destination is set.
+        _lastRouteFetchLocation = fromLocation;
       }
       _updateDistance();
       _fetchRoute();
     });
 
-    _mapController.move(selectedLatLng, 14.0);
+    // We actually need to move the map for explicitly selected locations
+    _mapController.move(selectedLatLng, _currentZoom);
   }
 
-  void _removeMarker(bool isFrom) {
-    setState(() {
-      if (isFrom) {
-        fromLocation = null;
-        _fromController.clear();
-        fromSuggestions = [];
-      } else {
-        toLocation = null;
-        _toController.clear();
-        toSuggestions = [];
-      }
-      routePoints.clear();
-      distance = null;
-    });
+  // Function to confirm destination and show toast message.
+  void _confirmDestination() {
+    if (toLocation != null) {
+      Fluttertoast.showToast(
+        msg: "Happy Journey! Destination has been Set",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+      // Don't navigate away - stay on map until destination is reached
+      setState(() {
+        _destinationConfirmed = true;
+      });
+    } else {
+      Fluttertoast.showToast(
+        msg: "Please select a destination on the map first!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(title: Text("Select Your Location")),
-      body: Column(
+      appBar: AppBar(
+        title: Text(
+          _destinationConfirmed
+              ? _destinationReached
+                  ? "Destination Reached!"
+                  : "Journey in Progress"
+              : "Select Your Location",
+        ),
+        backgroundColor:
+            _destinationReached
+                ? Colors.green
+                : _destinationConfirmed
+                ? Colors.blue
+                : null,
+      ),
+      body: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              children: [
-                _buildSearchBar(_fromController, true),
-                SizedBox(height: 10),
-                _buildSearchBar(_toController, false),
-                SizedBox(height: 10),
-                if (distance != null)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      "Distance: ${distance!.toStringAsFixed(2)} km",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  children: [
+                    _buildSearchBar(_fromController, true),
+                    const SizedBox(height: 10),
+                    _buildSearchBar(_toController, false),
+                    const SizedBox(height: 10),
+                    if (distance != null)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Distance: ${distance!.toStringAsFixed(2)} km",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: FlutterMap(
-              mapController: _mapController,
-              options: MapOptions(
-                initialCenter:
-                    fromLocation ??
-                    LatLng(20.5937, 78.9629), // Default to India
-                initialZoom: 10.0,
-                onTap: (tapPosition, point) {
-                  if (fromLocation == null) {
-                    _setLocation(point, true);
-                  } else {
-                    _setLocation(point, false);
-                  }
-                },
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  subdomains: ['a', 'b', 'c'],
+                    // Journey status indicator
+                    if (_destinationConfirmed)
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 10),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color:
+                              _destinationReached
+                                  ? Colors.green[50]
+                                  : Colors.blue[50],
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color:
+                                _destinationReached
+                                    ? Colors.green
+                                    : Colors.blue,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              _destinationReached
+                                  ? "Destination Reached!"
+                                  : "Journey in Progress - Stay on this screen",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color:
+                                    _destinationReached
+                                        ? Colors.green[800]
+                                        : Colors.blue[800],
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            if (!_destinationReached) const SizedBox(height: 8),
+                            if (!_destinationReached)
+                              Text(
+                                "Continue until you reach your destination",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[700],
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                          ],
+                        ),
+                      ),
+                  ],
                 ),
-                if (fromLocation != null)
-                  MarkerLayer(
-                    markers: [
-                      Marker(
-                        point: fromLocation!,
-                        width: 40,
-                        height: 40,
-                        child: Icon(
-                          Icons.location_on,
-                          color: Colors.blue,
-                          size: 40,
-                        ),
-                      ),
-                    ],
+              ),
+              Expanded(
+                child: FlutterMap(
+                  mapController: _mapController,
+                  options: MapOptions(
+                    initialCenter:
+                        fromLocation ??
+                        const LatLng(20.5937, 78.9629), // Default to India
+                    initialZoom: _currentZoom,
+                    onTap: (tapPosition, point) {
+                      // If fromLocation is not set, mark fromLocation; otherwise mark toLocation (destination)
+                      if (fromLocation == null) {
+                        _setLocation(point, true);
+                      } else {
+                        _setLocation(point, false);
+                      }
+                    },
+                    // Store the current zoom level when it changes
+                    onPositionChanged: (position, hasGesture) {
+                      if (hasGesture) {
+                        // Update our zoom tracking variable
+                        setState(() {
+                          _currentZoom = position.zoom;
+                        });
+                      }
+                    },
                   ),
-                if (toLocation != null)
-                  MarkerLayer(
-                    markers: [
-                      Marker(
-                        point: toLocation!,
-                        width: 40,
-                        height: 40,
-                        child: Icon(
-                          Icons.location_on,
-                          color: Colors.red,
-                          size: 40,
-                        ),
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      subdomains: const ['a', 'b', 'c'],
+                    ),
+                    if (fromLocation != null)
+                      MarkerLayer(
+                        markers: [
+                          Marker(
+                            point: fromLocation!,
+                            width: 40,
+                            height: 40,
+                            child: const Icon(
+                              Icons.location_on,
+                              color: Colors.blue,
+                              size: 40,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                if (routePoints.isNotEmpty)
-                  PolylineLayer(
-                    polylines: [
-                      Polyline(
-                        points: routePoints,
-                        color: Colors.blue,
-                        strokeWidth: 4.0,
+                    if (toLocation != null)
+                      MarkerLayer(
+                        markers: [
+                          Marker(
+                            point: toLocation!,
+                            width: 40,
+                            height: 40,
+                            child: const Icon(
+                              Icons.location_on,
+                              color: Colors.red,
+                              size: 40,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-              ],
-            ),
+                    if (routePoints.isNotEmpty)
+                      PolylineLayer(
+                        polylines: [
+                          Polyline(
+                            points: routePoints,
+                            color: Colors.blue,
+                            strokeWidth: 4.0,
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ),
+          // Loading overlay
+          if (_isLoadingLocation)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    CircularProgressIndicator(color: Colors.white),
+                    SizedBox(height: 20),
+                    Text(
+                      "Locating you...",
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _removeMarker(true);
-          _removeMarker(false);
-        },
-        backgroundColor: Colors.red,
-        child: Icon(Icons.delete),
-      ),
+      // Floating Elevated Button at the bottom center for confirming destination.
+      floatingActionButton:
+          _destinationReached
+              ? FloatingActionButton.extended(
+                onPressed: () {
+                  Navigator.pop(context, locationUpdateCount);
+                },
+                label: const Text("Complete Journey"),
+                icon: const Icon(Icons.done_all),
+                backgroundColor: Colors.green,
+              )
+              : FloatingActionButton.extended(
+                onPressed: () {
+                  if (toLocation != null && routePoints.isNotEmpty) {
+                    if (!_destinationConfirmed) {
+                      Fluttertoast.showToast(
+                        msg: "Happy Journey! Destination has been set.",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                      );
+                      setState(() {
+                        _destinationConfirmed = true;
+                      });
+                    } else {
+                      Fluttertoast.showToast(
+                        msg: "Continue your journey to reach the destination.",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                      );
+                    }
+                  } else {
+                    Fluttertoast.showToast(
+                      msg: "Please select a destination on the map first!",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                    );
+                  }
+                },
+                label: Text(
+                  _destinationConfirmed
+                      ? "Continue Journey"
+                      : "Confirm Destination",
+                ),
+                icon: Icon(
+                  _destinationConfirmed ? Icons.directions : Icons.check,
+                ),
+                backgroundColor: _destinationConfirmed ? Colors.blue : null,
+              ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -349,9 +589,9 @@ class LocationSelectionPageState extends State<LocationSelectionPage>
           controller: controller,
           decoration: InputDecoration(
             labelText: isFrom ? "From Location" : "To Destination",
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.search),
-            contentPadding: EdgeInsets.symmetric(
+            border: const OutlineInputBorder(),
+            prefixIcon: const Icon(Icons.search),
+            contentPadding: const EdgeInsets.symmetric(
               vertical: 10.0,
               horizontal: 15.0,
             ),
