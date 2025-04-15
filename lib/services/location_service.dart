@@ -165,8 +165,10 @@ class LocationService {
         ),
       ).listen(
         (Position position) async {
-          // Check if we have sent a previous update.
-          // Only proceed if the new position is at least 10m away from last sent update.
+          // Enhanced duplicate prevention: Only send if moved enough AND enough time has passed
+          const double minDistance = 10; // meters
+          const int minTimeDiff = 15; // seconds
+          bool shouldSend = true;
           if (_lastSentPosition != null) {
             double movedDistance = Geolocator.distanceBetween(
               _lastSentPosition!.latitude,
@@ -174,12 +176,24 @@ class LocationService {
               position.latitude,
               position.longitude,
             );
-            if (movedDistance < 10) {
-              // Not enough movement – update _lastPosition for inactivity tracking and return.
-              _lastPosition = position;
-              _resetInactivityTimer();
-              return;
+            int lastSentTimestamp =
+                _lastSentPosition!.timestamp != null
+                    ? (_lastSentPosition!.timestamp!.millisecondsSinceEpoch ~/
+                        1000)
+                    : 0;
+            int currentTimestamp =
+                position.timestamp != null
+                    ? (position.timestamp!.millisecondsSinceEpoch ~/ 1000)
+                    : DateTime.now().millisecondsSinceEpoch ~/ 1000;
+            int timeDiff = currentTimestamp - lastSentTimestamp;
+            if (movedDistance < minDistance || timeDiff < minTimeDiff) {
+              shouldSend = false;
             }
+          }
+          if (!shouldSend) {
+            _lastPosition = position;
+            _resetInactivityTimer();
+            return;
           }
           // Wrap in try-catch to prevent stream termination on errors
           try {

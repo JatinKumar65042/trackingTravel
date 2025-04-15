@@ -52,11 +52,10 @@ class LocationSelectionPageState extends State<LocationSelectionPage>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     AppState.currentRoute = '/location';
-    LocationService.startLocationTracking();
     // Show toast for location fetching
     _showLocationFetchingToast();
     _startLocationUpdates();
-    LocationService.startLocationTracking(); // ✅ MUST BE CALLED
+    LocationService.startLocationTracking(); // Start location tracking once
   }
 
   void _showLocationFetchingToast() {

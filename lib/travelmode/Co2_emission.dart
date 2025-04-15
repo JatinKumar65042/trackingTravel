@@ -62,7 +62,7 @@ class _Co2EmissionState extends State<Co2Emission>
   Map<String, double> _getCo2Emissions() {
     return {
       'Car': 120.0,
-      '2/3-Wheeler': 20.0,
+      'other': 20.0,
       'Bus': 80.0,
       'Train': 40.0,
       'Walking': 0.0,
@@ -74,7 +74,7 @@ class _Co2EmissionState extends State<Co2Emission>
   Map<String, String> _getTransportImages() {
     return {
       'Car': "images/car.jpg",
-      'two_three_Wheeler': "images/wheeler.jpg",
+      'other': "images/wheeler.jpg",
       'Bus': "images/bus.jpg",
       'Train': "images/train.jpg",
       'Flight': "images/flight.jpg",
@@ -208,10 +208,10 @@ class _Co2EmissionState extends State<Co2Emission>
                               });
 
                               // Set the transport mode in LocationService
+                              // This will also store the first location internally
                               LocationService.setTransportMode(
                                 widget.selectedTransport,
                               );
-                              await LocationService.storeFirstLocation();
 
                               // Navigate to location page first
                               final result = await Navigator.push(
