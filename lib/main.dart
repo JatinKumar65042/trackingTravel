@@ -28,21 +28,12 @@ void main() async {
   await NotificationService.init();
   // Initialize AuthController before the app starts
   Get.put(AuthController());
-  bool isLoggedIn = await checkSession();
-  print("Loggin Check");
-  print(isLoggedIn);
-  runApp(MyApp(isLoggedIn: isLoggedIn));
-}
-
-Future<bool> checkSession() async {
-  String? userId = await SharedPreferenceHelper().getUserId();
-  print("UserId: $userId");
-  return userId != null && userId.isNotEmpty;
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final bool isLoggedIn;
-  MyApp({super.key, required this.isLoggedIn});
+
+  MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +43,7 @@ class MyApp extends StatelessWidget {
       title: "Flutter Firebase",
       theme: ThemeData(primarySwatch: Colors.pink),
       navigatorObservers: [routeObserver],
-      initialRoute: '/',
-      home: SplashScreen(child: isLoggedIn ? Home() : LogIn()),
+      home: SplashScreen(), // Just go to SplashScreen
       getPages: [
         // GetPage(name: '/', page: () => Home()),
         GetPage(name: '/login', page: () => LogIn()),

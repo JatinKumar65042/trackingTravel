@@ -66,7 +66,7 @@ class _HomeState extends State<Home> {
       "Walking",
       "Bicycle",
       "Car",
-      "2/3-Wheeler",
+      "two_three_Wheeler",
       "Bus",
       "Train",
       "Flight",

@@ -50,7 +50,7 @@ class _JourneySummaryState extends State<JourneySummary> {
       'Bus': 0.0,
       'Train': 0.0,
       'Flight': 0.0,
-      '2/3-Wheeler': 0.0,
+      'two_three_Wheeler': 0.0,
     };
 
     return (caloriesPerKm[widget.selectedTransport] ?? 0.0) * distanceKm;

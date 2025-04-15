@@ -155,7 +155,6 @@ class LocationService {
       }
 
       _startInactivityTimer();
-
       // Configure location settings for optimal real-time updates
       // Updated distanceFilter to 10 to align with our update threshold.
       positionStream = Geolocator.getPositionStream(
