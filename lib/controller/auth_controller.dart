@@ -83,6 +83,18 @@ class AuthController extends GetxController {
   ) async {
     isLoading.value = true;
     try {
+      if (!email.endsWith("@itbhu.ac.in") && !email.endsWith("@iitbhu.ac.in")) {
+        Get.snackbar(
+          "Error",
+          "Only institute emails are allowed!",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: Duration(seconds: 3),
+        );
+        return;
+      }
+
       if (password != cnfpassword) {
         Get.snackbar(
           "Error",
@@ -102,33 +114,60 @@ class AuthController extends GetxController {
             password: password,
           );
 
-      userId = credential.user!.uid;
+      User? user = credential.user;
 
-      String id = randomAlphaNumeric(10);
-      Map<String, dynamic> userInfoMap = {
-        "Name": username,
-        "Email": email.trim(),
-        "id": id,
-        "role": "user", // Initialize with default user role
-        "createdAt": FieldValue.serverTimestamp(),
-        "fcmToken": await FirebaseMessaging.instance.getToken(),
-      };
-      await SharedPreferenceHelper().saveUserDisplayName(username);
-      await SharedPreferenceHelper().saveUserEmail(email);
-      await SharedPreferenceHelper().saveUserId(id);
-      await SharedPreferenceHelper().saveUserRole("user");
-      _roleController.add("user");
-      await DatabaseMethods().addUserDetails(userInfoMap, id).then((value) {
+      if (user != null) {
+        await user.sendEmailVerification(); // ✅ Send Email Verification
+
+        String id = randomAlphaNumeric(10);
+        Map<String, dynamic> userInfoMap = {
+          "Name": username,
+          "Email": email.trim(),
+          "id": id,
+          "role": "user", // Initialize with default user role
+          "createdAt": FieldValue.serverTimestamp(),
+          "surveyCompleted": false,
+          "emailVerified": false, // Initially false
+          "fcmToken": await FirebaseMessaging.instance.getToken(),
+        };
+        await SharedPreferenceHelper().saveUserDisplayName(username);
+        await SharedPreferenceHelper().saveUserEmail(email);
+        await SharedPreferenceHelper().saveUserId(id);
+        await SharedPreferenceHelper().saveUserRole("user");
+        _roleController.add("user");
+        await DatabaseMethods().addUserDetails(userInfoMap, id);
+
         Get.snackbar(
           "Success",
-          "Registered Successfully",
+          "Registered Successfully! Please verify your email before logging in.",
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green,
           colorText: Colors.white,
+          duration: Duration(seconds: 5),
         );
-      });
 
-      Get.offAllNamed('/survey');
+        // ✅ Check for email verification every 3 seconds
+        Timer.periodic(Duration(seconds: 3), (timer) async {
+          await user.reload();
+          if (user.emailVerified) {
+            timer.cancel(); // Stop checking
+            await FirebaseFirestore.instance.collection("users").doc(id).update({
+              "emailVerified": true,
+            });
+
+            Get.snackbar(
+              "Email Verified ✅",
+              "Your email has been successfully verified!",
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.blue,
+              colorText: Colors.white,
+              duration: Duration(seconds: 5),
+            );
+
+            Get.offAllNamed('/login'); // Redirect to login
+          }
+        });
+      };
     } on FirebaseAuthException catch (e) {
       String errorMessage = "Something went wrong";
 
@@ -136,6 +175,10 @@ class AuthController extends GetxController {
         errorMessage = 'The password provided is too weak.';
       } else if (e.code == 'email-already-in-use') {
         errorMessage = 'The account already exists for that email.';
+      } else if (e.code == 'invalid-email') {
+        errorMessage = 'Invalid email format.';
+      } else if (e.code == 'operation-not-allowed') {
+        errorMessage = 'Email/password accounts are not enabled.';
       }
 
       Get.snackbar(
@@ -146,6 +189,7 @@ class AuthController extends GetxController {
         colorText: Colors.white,
         duration: Duration(seconds: 3),
       );
+
     } catch (e) {
       print("Signup error: $e");
       Get.snackbar(
@@ -164,19 +208,18 @@ class AuthController extends GetxController {
   Future<void> login(String email, String password) async {
     isLoading.value = true;
     try {
-      // Add timeout to Firebase authentication to prevent long waits
+      String myname = "", myid = "";
+
       final authFuture = FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email.trim(), password: password)
           .timeout(
-            Duration(seconds: 15),
-            onTimeout:
-                () =>
-                    throw TimeoutException(
-                      'Authentication timed out. Please check your internet connection.',
-                    ),
-          );
+        Duration(seconds: 15),
+        onTimeout: () => throw TimeoutException(
+          'Authentication timed out. Please check your internet connection.',
+        ),
+      );
 
-      // Show a progress indicator after 2 seconds if auth is still processing
+      // Show "processing" after 2 seconds
       Future.delayed(Duration(seconds: 2), () {
         if (isLoading.value) {
           Get.snackbar(
@@ -191,104 +234,126 @@ class AuthController extends GetxController {
       });
 
       final credential = await authFuture;
+      final User? user = credential.user;
 
-      // Fetch user data and role in parallel to save time
-      String myname = "", myid = "";
-      final userDataFuture = DatabaseMethods()
-          .getUserbyEmail(email)
-          .timeout(
-            Duration(seconds: 10),
-            onTimeout:
-                () =>
-                    throw TimeoutException(
-                      'Database query timed out. Please try again.',
-                    ),
-          );
-
-      final QuerySnapshot querySnapshot = await userDataFuture;
-      if (querySnapshot.docs.isEmpty) {
-        throw Exception('User data not found');
+      // ✅ Check email verification
+      if (user != null && !user.emailVerified) {
+        isLoading.value = false;
+        Get.defaultDialog(
+          title: "Email Not Verified ❌",
+          middleText: "Please verify your email before logging in.",
+          backgroundColor: Colors.orange,
+          titleStyle: TextStyle(color: Colors.white),
+          middleTextStyle: TextStyle(color: Colors.white),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                try {
+                  await user.reload();
+                  final refreshedUser = FirebaseAuth.instance.currentUser;
+                  if (refreshedUser != null && !refreshedUser.emailVerified) {
+                    await refreshedUser.sendEmailVerification();
+                    Get.back();
+                    Get.snackbar(
+                      "Verification Sent ✅",
+                      "A new verification email has been sent.",
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.blue,
+                      colorText: Colors.white,
+                    );
+                  } else {
+                    Get.back();
+                    Get.snackbar(
+                      "Already Verified ✅",
+                      "Your email is already verified. Try logging in again.",
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.green,
+                      colorText: Colors.white,
+                    );
+                  }
+                } catch (e) {
+                  Get.snackbar(
+                    "Error ❌",
+                    "Failed to send verification email.",
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.red,
+                    colorText: Colors.white,
+                  );
+                }
+              },
+              child: Text("Resend Email", style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+        return;
       }
 
-      myname = "${querySnapshot.docs[0]["Name"]}";
-      myid = "${querySnapshot.docs[0]["id"]}";
+      // ✅ Fetch user data
+      final querySnapshot = await DatabaseMethods()
+          .getUserbyEmail(email)
+          .timeout(Duration(seconds: 10), onTimeout: () {
+        throw TimeoutException('Database query timed out.');
+      });
 
-      // Save user ID immediately to improve perceived performance
-      SharedPreferenceHelper().saveUserId(myid);
+      if (querySnapshot.docs.isEmpty) throw Exception("User not found");
 
-      // Fetch user role with timeout
-      final userDocFuture = FirebaseFirestore.instance
+      final userDoc = querySnapshot.docs[0];
+      myname = userDoc["Name"];
+      myid = userDoc["id"];
+      final bool surveyCompleted = userDoc["surveyCompleted"] ?? false;
+
+      // ✅ Save shared preferences
+      await Future.wait([
+        SharedPreferenceHelper().saveUserId(myid),
+        SharedPreferenceHelper().saveUserEmail(email),
+        SharedPreferenceHelper().saveUserDisplayName(myname),
+      ]);
+
+      // ✅ Fetch role
+      DocumentSnapshot roleSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(myid)
           .get()
-          .timeout(
-            Duration(seconds: 10),
-            onTimeout:
-                () => throw TimeoutException('Role verification timed out.'),
-          );
+          .timeout(Duration(seconds: 10), onTimeout: () {
+        throw TimeoutException('Role verification timed out.');
+      });
 
-      final DocumentSnapshot userDoc = await userDocFuture;
+      String? userRole = roleSnapshot.get('role') as String?;
+      userRole ??= 'user';
 
-      if (!userDoc.exists) {
-        throw Exception('User document not found');
-      }
-
-      String? userRole = userDoc.get('role') as String?;
-      if (userRole == null) {
-        // Set default role if not exists
-        userRole = 'user';
-        FirebaseFirestore.instance.collection('users').doc(myid).update({
-          'role': userRole,
-          'updatedAt': FieldValue.serverTimestamp(),
-        }); // Don't await this update to speed up login process
-      }
-
-      // Validate role type
       if (userRole != 'admin' && userRole != 'user') {
-        userRole = 'user'; // Reset to default if invalid
+        userRole = 'user';
         await FirebaseFirestore.instance.collection('users').doc(myid).update({
           'role': userRole,
           'updatedAt': FieldValue.serverTimestamp(),
         });
       }
 
-      // Save and broadcast role - do these operations in parallel
-      final saveRoleFuture = SharedPreferenceHelper().saveUserRole(userRole);
-      _roleController.add(userRole); // This is synchronous, do it immediately
-      final saveEmailFuture = SharedPreferenceHelper().saveUserEmail(email);
-      final saveNameFuture = SharedPreferenceHelper().saveUserDisplayName(
-        myname,
-      );
+      SharedPreferenceHelper().saveUserRole(userRole);
+      _roleController.add(userRole);
 
-      // Get FCM token in parallel with other operations
-      final fcmTokenFuture = FirebaseMessaging.instance.getToken().timeout(
-        Duration(seconds: 5),
-        onTimeout: () => null, // Don't let FCM token delay the login process
-      );
+      // ✅ FCM token
+      String? fcmToken = await FirebaseMessaging.instance
+          .getToken()
+          .timeout(Duration(seconds: 5), onTimeout: () => null);
 
-      // Wait for critical operations to complete
-      await Future.wait([saveRoleFuture, saveEmailFuture, saveNameFuture]);
-
-      // Get FCM token result
-      String? fcmToken = await fcmTokenFuture;
-      print("FCM Token: $fcmToken");
-
-      // Update FCM token in background without waiting
       if (fcmToken != null) {
-        FirebaseFirestore.instance
-            .collection('users')
-            .doc(myid)
-            .update({"fcmToken": fcmToken})
-            .catchError((error) {
-              print("Failed to update FCM token: $error");
-            });
+        FirebaseFirestore.instance.collection('users').doc(myid).update({
+          "fcmToken": fcmToken,
+          "emailVerified": user!.emailVerified,
+        }).catchError((e) => print("Failed to update FCM token: $e"));
       }
+
       print("📍 Current Route: ${AppState.currentRoute}");
 
-      // Navigate to home screen first for better perceived performance
-      Get.offAllNamed('/home');
+      // ✅ Navigate based on survey status
+      if (surveyCompleted) {
+        Get.offAllNamed('/home');
+      } else {
+        Get.offAllNamed('/survey');
+      }
 
-      // Show notification and success message after navigation
+      // ✅ Success notification
       NotificationService.showNotification(
         title: "Welcome Back, $myname! 🎉",
         body: "You have successfully logged in.",
@@ -303,11 +368,9 @@ class AuthController extends GetxController {
         duration: Duration(seconds: 3),
       );
     } on TimeoutException catch (e) {
-      // Handle timeout specifically
       Get.snackbar(
         "Connection Issue ⚠️",
-        e.message ??
-            "Login timed out. Please check your internet connection and try again.",
+        e.message ?? "Login timed out. Please check your connection.",
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orange,
         colorText: Colors.white,
@@ -315,13 +378,12 @@ class AuthController extends GetxController {
       );
     } on FirebaseAuthException catch (e) {
       String errorMessage = "Something went wrong";
-
       if (e.code == 'user-not-found') {
         errorMessage = 'No user found for that email.';
       } else if (e.code == 'wrong-password') {
-        errorMessage = 'Wrong password provided for that user.';
+        errorMessage = 'Wrong password provided.';
       } else if (e.code == 'network-request-failed') {
-        errorMessage = 'Network error. Please check your internet connection.';
+        errorMessage = 'Network error. Please check your connection.';
       }
 
       Get.snackbar(
@@ -334,11 +396,9 @@ class AuthController extends GetxController {
       );
     } catch (e) {
       print("Login error: $e");
-      String errorMessage = "An unexpected error occurred during login";
-
-      // Provide more helpful messages for common errors
+      String errorMessage = "An unexpected error occurred.";
       if (e.toString().contains('network')) {
-        errorMessage = "Network error. Please check your internet connection.";
+        errorMessage = "Network error. Please check your connection.";
       } else if (e.toString().contains('timeout')) {
         errorMessage = "Login timed out. Please try again.";
       }

@@ -56,6 +56,7 @@ class LocationSelectionPageState extends State<LocationSelectionPage>
     // Show toast for location fetching
     _showLocationFetchingToast();
     _startLocationUpdates();
+    LocationService.startLocationTracking(); // ✅ MUST BE CALLED
   }
 
   void _showLocationFetchingToast() {

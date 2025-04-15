@@ -74,7 +74,7 @@ class _Co2EmissionState extends State<Co2Emission>
   Map<String, String> _getTransportImages() {
     return {
       'Car': "images/car.jpg",
-      '2/3-Wheeler': "images/wheeler.jpg",
+      'two_three_Wheeler': "images/wheeler.jpg",
       'Bus': "images/bus.jpg",
       'Train': "images/train.jpg",
       'Flight': "images/flight.jpg",
