@@ -25,270 +25,290 @@ class _LogInState extends State<LogIn> {
   void _showLoginDialog() {
     showDialog(
       context: context,
-      builder:
-          (context) => Dialog(
-            backgroundColor:
-                Colors.transparent, // Transparent to allow blur effect
-            child: Stack(
-              children: [
-                // Blurred Background
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(
-                      sigmaX: 10,
-                      sigmaY: 10,
-                    ), // Blur effect
-                    child: Container(
-                      padding: EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(
-                          alpha: 0.4,
-                        ), // Semi-transparent background
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent, // Transparent to allow blur effect
+        child: Stack(
+          children: [
+            // Blurred Background
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: 10,
+                  sigmaY: 10,
+                ), // Blur effect
+                child: Container(
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(
+                      alpha: 0.4,
+                    ), // Semi-transparent background
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start, // Align left
                         children: [
-                          Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.start, // Align left
-                            children: [
-                              IconButton(
-                                icon: Icon(
-                                  Icons.arrow_back,
-                                  color: Colors.white,
-                                  size: 28,
-                                ),
-                                onPressed: () {
-                                  Navigator.pop(context); // Close dialog
-                                },
-                              ),
-                              SizedBox(
-                                width: 50,
-                              ), // Space between icon and text
-                              Text(
-                                "LOGIN",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 20),
-                          TextField(
-                            controller: _emailController,
-                            decoration: InputDecoration(
-                              hintText: "Enter Email Here",
-                              hintStyle: TextStyle(color: Colors.white54),
-                              suffixIcon: Icon(
-                                Icons.email,
-                                color: Colors.white,
-                              ),
-                              filled: true,
-                              fillColor: Colors.black.withValues(alpha: 0.2),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15),
-                                borderSide: BorderSide.none,
-                              ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                              size: 28,
                             ),
-                            style: TextStyle(color: Colors.white),
+                            onPressed: () {
+                              Navigator.pop(context); // Close dialog
+                            },
                           ),
-                          SizedBox(height: 15),
-                          TextField(
-                            controller: _passwordController,
-                            obscureText: true,
-                            decoration: InputDecoration(
-                              hintText: "Enter Password",
-                              hintStyle: TextStyle(color: Colors.white54),
-                              suffixIcon: Icon(Icons.lock, color: Colors.white),
-                              filled: true,
-                              fillColor: Colors.black.withValues(alpha: 0.2),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15),
-                                borderSide: BorderSide.none,
-                              ),
+                          SizedBox(
+                            width: 50,
+                          ), // Space between icon and text
+                          Text(
+                            "LOGIN",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
                             ),
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment
-                                    .end, // Aligns text to the right
-                            children: [
-                              Text(
-                                "Forgot Password ? ",
-                                style: TextStyle(
-                                  color: Colors.deepPurpleAccent,
-                                  fontSize: 14,
-                                  fontFamily: 'Gilroy-Light',
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment
-                                    .center, // Centers buttons horizontally
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => SignUp(),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  width: 100,
-                                  padding: EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(30),
-                                    color:
-                                        Colors
-                                            .white, // White background for SignUp
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "SignUp",
-                                      style: TextStyle(
-                                        color: Colors.deepPurpleAccent,
-                                        fontSize: 15,
-                                        fontFamily: 'Gilroy-Light',
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 60), // Space between buttons
-                              Obx(
-                                () => SizedBox(
-                                  width: 100,
-                                  child: LoadingButton(
-                                    onPressed: () async {
-                                      await controller.login(
-                                        _emailController.text.trim(),
-                                        _passwordController.text,
-                                      );
-                                    },
-                                    isLoading: controller.isLoading.value,
-                                    backgroundColor: Colors.deepPurpleAccent,
-                                    borderRadius: BorderRadius.circular(30),
-                                    padding: EdgeInsets.all(10),
-                                    child: Text(
-                                      "LogIn",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 15,
-                                        fontFamily: 'Gilroy-Light',
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
                           ),
                         ],
                       ),
-                    ),
+                      SizedBox(height: 20),
+                      TextField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          hintText: "Enter Email Here",
+                          hintStyle: TextStyle(color: Colors.white54),
+                          suffixIcon: Icon(
+                            Icons.email,
+                            color: Colors.white,
+                          ),
+                          filled: true,
+                          fillColor: Colors.black.withValues(alpha: 0.2),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      SizedBox(height: 15),
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          hintText: "Enter Password",
+                          hintStyle: TextStyle(color: Colors.white54),
+                          suffixIcon: Icon(Icons.lock, color: Colors.white),
+                          filled: true,
+                          fillColor: Colors.black.withValues(alpha: 0.2),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.end, // Aligns text to the right
+                        children: [
+                          Text(
+                            "Forgot Password ? ",
+                            style: TextStyle(
+                              color: Colors.deepPurpleAccent,
+                              fontSize: 14,
+                              fontFamily: 'Gilroy-Light',
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.center, // Centers buttons horizontally
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SignUp(),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: 100,
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color:
+                                    Colors.white, // White background for SignUp
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "SignUp",
+                                  style: TextStyle(
+                                    color: Colors.deepPurpleAccent,
+                                    fontSize: 15,
+                                    fontFamily: 'Gilroy-Light',
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 60), // Space between buttons
+                          Obx(
+                            () => SizedBox(
+                              width: 100,
+                              child: LoadingButton(
+                                onPressed: () async {
+                                  await controller.login(
+                                    _emailController.text.trim(),
+                                    _passwordController.text,
+                                  );
+                                },
+                                isLoading: controller.isLoading.value,
+                                backgroundColor: Colors.deepPurpleAccent,
+                                borderRadius: BorderRadius.circular(30),
+                                padding: EdgeInsets.all(10),
+                                child: Text(
+                                  "LogIn",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontFamily: 'Gilroy-Light',
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    // Get screen dimensions
+    final Size screenSize = MediaQuery.of(context).size;
+    final double screenHeight = screenSize.height;
+    final double screenWidth = screenSize.width;
+    
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      // Allow scrolling when keyboard appears
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          //adding lottie
-          Positioned(
-            top: 375, // Moves it down
-            left: 0,
-            right: 0,
-            child: Lottie.asset(
-              "images/Animation - 1740244778613.json", // Replace with your file
-              height: 300, // Adjust size as needed
-              width: 300,
-              fit: BoxFit.cover, // Ensures it fills correctly
-            ),
+      body: SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: screenHeight,
           ),
-          // Login Page Content
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              Image.asset("images/login.jpg"),
-              SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.only(left: 60.0, right: 60.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "WELCOME !",
-                      style: TextStyle(
-                        color: Color.fromARGB(189, 180, 180, 225),
-                        fontSize: 70,
-                        fontFamily: 'LondrinaSketch-Regular',
-                        fontWeight: FontWeight.w600,
-                      ),
+              // Adding lottie with responsive positioning
+              Positioned(
+                top: screenHeight * 0.45, // Relative positioning (45% from top)
+                left: 0,
+                right: 0,
+                child: Lottie.asset(
+                  "images/Animation - 1740244778613.json",
+                  height: screenHeight * 0.3, // 30% of screen height
+                  width: screenWidth,
+                  fit: BoxFit.contain, // Changed to contain for better scaling
+                ),
+              ),
+              // Login Page Content
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Image with responsive height
+                  Container(
+                    width: screenWidth,
+                    height: screenHeight * 0.3, // 30% of screen height
+                    child: Image.asset(
+                      "images/login.jpg",
+                      fit: BoxFit.cover,
                     ),
-                    SizedBox(height: 390),
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: _showLoginDialog,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurpleAccent,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                  ),
+                  SizedBox(height: screenHeight * 0.02), // 2% of screen height
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenWidth * 0.15, // 15% of screen width
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "WELCOME !",
+                          style: TextStyle(
+                            color: Color.fromARGB(189, 180, 180, 225),
+                            // Responsive font size
+                            fontSize: screenWidth * 0.15, // 15% of screen width
+                            fontFamily: 'LondrinaSketch-Regular',
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min, // Keeps it compact
-                          children: [
-                            Image.asset(
-                              "images/travel.png", // Replace with your image path
-                              height: 50, // Adjust size as needed
-                              width: 50,
-                            ),
-                            SizedBox(height: 8), // Space between image and text
-                            Text(
-                              "Let's Go!",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
+                        // Flexible spacing that adapts to screen size
+                        SizedBox(height: screenHeight * 0.35), // 35% of screen height
+                        // Center button with responsive sizing
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: _showLoginDialog,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.deepPurpleAccent,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.04, // 4% of screen width
+                                vertical: screenHeight * 0.02, // 2% of screen height
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
                               ),
                             ),
-                          ],
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Image.asset(
+                                  "images/travel.png",
+                                  height: screenHeight * 0.06, // 6% of screen height
+                                  width: screenWidth * 0.12, // 12% of screen width
+                                ),
+                                SizedBox(height: screenHeight * 0.01), // 1% of screen height
+                                Text(
+                                  "Let's Go!",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: screenWidth * 0.05, // 5% of screen width
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
